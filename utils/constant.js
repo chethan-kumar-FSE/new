@@ -1,0 +1,3 @@
+export const SOCIAL_ICON_SIZE = 45;
+export const WIDGETS_INTERVALS = 10;
+export const COMMON_HITZFEED_URL = process.env.NEXT_PUBLIC_HITZFEED_COMMON_URL;
