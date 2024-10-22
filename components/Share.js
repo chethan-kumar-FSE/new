@@ -53,7 +53,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
   const handleOnSharingOnMedia = async ({ type }) => {
     // const message = `${newsTitle}\n${postUrl}`; // Message to send with the link
 
-    const response = await feedsServices.getUpdatedShareCount({
+   /*  const response = await feedsServices.getUpdatedShareCount({
       requestBody: {
         articleid: postId,
         sharecount: 1,
@@ -61,7 +61,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
         lang: newsLanguage,
       },
     });
-    console.log('responsebody for sharecount', response);
+    console.log('responsebody for sharecount', response); */
 
     let text = newsTitle + '  ' + link + ' Hitzfeed by Oneindia';
     let url;
