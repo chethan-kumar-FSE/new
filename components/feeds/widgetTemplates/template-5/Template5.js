@@ -66,7 +66,7 @@ const Box = ({ urlSlug, genre, id, lang, index }) => {
               padding: '4px', // Optional: more spacing between gradient and image
             }}
           >
-            {/*  <Image
+              <img
               src={`https://www.hitzfeed.com/trends/media/images/category/250x250/${urlSlug}_1.jpg`}
               alt="something"
               style={{
@@ -75,7 +75,7 @@ const Box = ({ urlSlug, genre, id, lang, index }) => {
                 borderRadius: '10px', // Round corners for the image
                 display: 'block', // To ensure proper layout inside the container
               }}
-            /> */}
+            /> 
           </div>
         </div>
 
