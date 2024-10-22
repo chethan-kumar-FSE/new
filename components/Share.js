@@ -65,7 +65,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
       url = 'https://www.instagram.com/?url=' + link;
     }
     if (type == 'li') {
-      url = 'http://www.linkedin.com/shareArticle?mini=true&url=' + text;
+      url = 'http://www.linkedin.com/shareArticle?mini=true&url=' + postUrl;
     }
     if (type == 'ml') {
       url = 'mailto:?subject=' + newsTitle + '&body=' + text;
