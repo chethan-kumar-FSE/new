@@ -19,19 +19,24 @@ import { useBackdropContext } from '@/context/backdrop';
 import { notify } from '@/utils/Toast';
 import { getEmbeddedCode } from '@/utils/embeddedCode';
 import Image from 'next/image';
+import { feedsServices } from '@/services/feedsService';
+import Cookies from 'js-cookie';
 
 export const ShareButtons = ({ postDetailsOnShare }) => {
   const { toggleBackdropStatus } = useBackdropContext();
 
-  const { postId, postImage, urlString, newsTitle } = postDetailsOnShare;
-  const postUrl = window.location.href; // Get the current URL of the post
+  const { postId, postImage, urlString, newsTitle, newsLanguage } =
+    postDetailsOnShare;
+  const postUrl = window.location.hostname; // Get the current URL of the post
+  const protocol = window.location.protocol;
+  const link = `${protocol}//${postUrl}/${urlString}-p${postId}`;
 
+  const userId = Cookies.get('userId');
   //let link = `${postUrl}/${urlString}-p${postId}`;
 
   const handleOnClipboardCopy = async () => {
     toggleBackdropStatus();
-    const currentUrl = window.location.href;
-    await navigator.clipboard?.writeText(currentUrl);
+    await navigator.clipboard?.writeText(link);
 
     notify({ message: 'Link copied to clipboard' });
   };
@@ -44,29 +49,38 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
     notify({ message: 'Embedded code copied to clipboard' });
   };
 
-  const handleOnSharingOnMedia = ({ type }) => {
+  const handleOnSharingOnMedia = async ({ type }) => {
     // const message = `${newsTitle}\n${postUrl}`; // Message to send with the link
-    console.log('newsTitle', newsTitle);
-    let text = newsTitle + '  ' + postUrl + ' Hitzfeed by Oneindia';
+
+    const response = await feedsServices.getUpdatedShareCount({
+      requestBody: {
+        articleid: postId,
+        sharecount: 1,
+        userid: userId,
+        lang: newsLanguage,
+      },
+    });
+    console.log('responsebody for sharecount', response);
+
+    let text = newsTitle + '  ' + link + ' Hitzfeed by Oneindia';
     let url;
     if (type == 'wa') {
       url = `https://api.whatsapp.com/send?text=${text}`;
     }
     if (type == 'fb') {
-      url = 'https://www.facebook.com/sharer/sharer.php?u=' + postUrl;
+      url = 'https://www.facebook.com/sharer/sharer.php?u=' + link;
     }
     if (type == 'tw') {
       url = 'https://twitter.com/intent/tweet?text=' + text;
     }
     if (type == 'te') {
-      url =
-        'https://telegram.me/share/url?url=' + postUrl + '&text=' + newsTitle;
+      url = 'https://telegram.me/share/url?url=' + link + '&text=' + newsTitle;
     }
     if (type == 'in') {
-      url = 'https://www.instagram.com/?url=' + postUrl;
+      url = 'https://www.instagram.com/?url=' + link;
     }
     if (type == 'li') {
-      url = 'http://www.linkedin.com/shareArticle?mini=true&url=' + postUrl;
+      url = 'http://www.linkedin.com/shareArticle?mini=true&url=' + link;
     }
     if (type == 'ml') {
       url = 'mailto:?subject=' + newsTitle + '&body=' + text;
@@ -97,7 +111,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
         }}
       >
         <div
-          style={{ textAlign: 'center' }}
+          style={{ textAlign: 'center', cursor: 'pointer' }}
           onClick={() => handleOnClipboardCopy()}
         >
           <Image
@@ -170,7 +184,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           <IconTagName tagName={'Email'} />
         </EmailShareButton>
         <div
-          style={{ textAlign: 'center' }}
+          style={{ textAlign: 'center', cursor: 'pointer' }}
           onClick={() => handleOnEmbeddedCopy()}
         >
           <Image
@@ -207,4 +221,3 @@ const IconTagName = ({ tagName }) => {
     </p>
   );
 };
-
