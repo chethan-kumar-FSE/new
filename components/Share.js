@@ -24,6 +24,9 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
   const { toggleBackdropStatus } = useBackdropContext();
 
   const { postId, postImage, urlString, newsTitle } = postDetailsOnShare;
+  const postUrl = window.location.href; // Get the current URL of the post
+
+  let link = `${postUrl}/${urlString}-p${postId}`;
 
   const handleOnClipboardCopy = async () => {
     toggleBackdropStatus();
@@ -42,11 +45,9 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
   };
 
   const handleOnSharingOnMedia = ({ type }) => {
-    const postUrl = window.location.href; // Get the current URL of the post
     // const message = `${newsTitle}\n${postUrl}`; // Message to send with the link
     console.log('newsTitle', newsTitle);
     let text = newsTitle + '  ' + postUrl + ' Hitzfeed by Oneindia';
-    let link = `${postUrl}/${urlString}-p${postId}?ref=${type}`;
     let url;
     if (type == 'wa') {
       url = `https://api.whatsapp.com/send?text=${text}`;
@@ -157,7 +158,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           <IconTagName tagName={'Whatsapp'} />
         </WhatsappShareButton>
 
-        <LinkedinShareButton url={'https://github.com/next-share'}>
+        <LinkedinShareButton url={link}>
           <LinkedinIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
