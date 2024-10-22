@@ -26,7 +26,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
   const { postId, postImage, urlString, newsTitle } = postDetailsOnShare;
   const postUrl = window.location.href; // Get the current URL of the post
 
-  let link = `${postUrl}/${urlString}-p${postId}`;
+  //let link = `${postUrl}/${urlString}-p${postId}`;
 
   const handleOnClipboardCopy = async () => {
     toggleBackdropStatus();
@@ -53,16 +53,16 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
       url = `https://api.whatsapp.com/send?text=${text}`;
     }
     if (type == 'fb') {
-      url = 'https://www.facebook.com/sharer/sharer.php?u=' + link;
+      url = 'https://www.facebook.com/sharer/sharer.php?u=' + postUrl;
     }
     if (type == 'tw') {
       url = 'https://twitter.com/intent/tweet?text=' + text;
     }
     if (type == 'te') {
-      url = 'https://telegram.me/share/url?url=' + link + '&text=' + title;
+      url = 'https://telegram.me/share/url?url=' + postUrl + '&text=' + title;
     }
     if (type == 'in') {
-      url = 'https://www.instagram.com/?url=' + link;
+      url = 'https://www.instagram.com/?url=' + postUrl;
     }
     if (type == 'li') {
       url = 'http://www.linkedin.com/shareArticle?mini=true&url=' + postUrl;
@@ -158,7 +158,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           <IconTagName tagName={'Whatsapp'} />
         </WhatsappShareButton>
 
-        <LinkedinShareButton url={link}>
+        <LinkedinShareButton url={'https://github.com/next-share'}>
           <LinkedinIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
