@@ -24,7 +24,7 @@ export const generateMetadata = async ({ params }) => {
         story_id: postId,
       },
     });
-    const { news_title, id, url_string, share_image_link } = response[0];
+    const { news_title, id, url_string, share_image_link } = response.data[0];
     category = 'Meme';
 
     title = `${news_title} ${category} Quote Card - Hitzfeed`;
