@@ -123,9 +123,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           />
           <IconTagName tagName={'Facebook'} />
         </FacebookShareButton>
-        <TelegramShareButton
-         
-        >
+         <TelegramShareButton>
           <TelegramIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
