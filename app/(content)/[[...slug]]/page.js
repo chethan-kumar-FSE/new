@@ -29,7 +29,8 @@ export const generateMetadata = async ({ params }) => {
 
   (title = meta_title), (description = meta_description);
   keywords = meta_keywords;
-  imageUrl = `${siteUrl}/trends/media/images/hitzfeed-og-image.jpg`;
+  imageUrl =
+    'https://www.hitzfeed.com/trends/media/images/hitzfeed-og-image.jpg';
   ogUrl = siteUrl;
 
   // Logic to customize metadata based on the slug
