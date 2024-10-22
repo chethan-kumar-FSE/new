@@ -29,9 +29,9 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
     postDetailsOnShare;
   const postUrl = window.location.hostname; // Get the current URL of the post
    const protocol = window.location.protocol;
-  //const link = `${protocol}//${postUrl}/${urlString}-p${postId}`;
-  const link = postUrl;
+  const link = `${protocol}//${postUrl}/${urlString}-p${postId}`;
 
+  
   const userId = Cookies.get('userId');
   //let link = `${postUrl}/${urlString}-p${postId}`;
 
