@@ -24,11 +24,11 @@ export const generateMetadata = async ({ params }) => {
         story_id: postId,
       },
     });
-    const { news_title: title, id, url_string, share_image_link } = response[0];
+    const { news_title, id, url_string, share_image_link } = response[0];
     category = 'Meme';
 
-    title = `${title} ${category} Quote Card - Hitzfeed`;
-    (description = `${title} ${category} Quotes on Cards: Check the ${title} ${category} quotes in the form of flashcards at Hitzfeed.`),
+    title = `${news_title} ${category} Quote Card - Hitzfeed`;
+    (description = `${news_title} ${category} Quotes on Cards: Check the ${news_title} ${category} quotes in the form of flashcards at Hitzfeed.`),
       (ogUrl = `${siteUrl}/${url_string}-p${id}/`);
     imageUrl = `https://imagesvs.oneindia.com/webp/trends${share_image_link}`; // Example for post-specific image
   } else if (slug.length === 1 && slug[0].includes('-c')) {
