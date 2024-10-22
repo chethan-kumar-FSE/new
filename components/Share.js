@@ -41,13 +41,35 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
     notify({ message: 'Embedded code copied to clipboard' });
   };
 
-  const handleOnSharingOnMedia = () => {
+  const handleOnSharingOnMedia = ({ type }) => {
     const postUrl = window.location.href; // Get the current URL of the post
     // const message = `${newsTitle}\n${postUrl}`; // Message to send with the link
     console.log('newsTitle', newsTitle);
-    const whatsappShareUrl = `https://api.whatsapp.com/send?text=${newsTitle} ${postUrl}`;
-
-    window.open(whatsappShareUrl, '_blank');
+    let text = newsTitle + '  ' + postUrl + ' Hitzfeed by Oneindia';
+    let link = `${postUrl}/${urlString}-p${postId}?ref=${type}`;
+    let url;
+    if (type == 'wa') {
+      url = `https://api.whatsapp.com/send?text=${text}`;
+    }
+    if (type == 'fb') {
+      url = 'https://www.facebook.com/sharer/sharer.php?u=' + link;
+    }
+    if (type == 'tw') {
+      url = 'https://twitter.com/intent/tweet?text=' + text;
+    }
+    if (type == 'te') {
+      url = 'https://telegram.me/share/url?url=' + link + '&text=' + title;
+    }
+    if (type == 'in') {
+      url = 'https://www.instagram.com/?url=' + link;
+    }
+    if (type == 'li') {
+      url = 'http://www.linkedin.com/shareArticle?mini=true&url=' + link;
+    }
+    if (type == 'ml') {
+      url = 'mailto:?subject=' + newsTitle + '&body=' + text;
+    }
+    window.open(url, '_blank');
   };
   return (
     <div
@@ -96,7 +118,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           <FacebookIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
-            onClick={handleOnSharingOnMedia}
+            onClick={() => handleOnSharingOnMedia({ type: 'fb' })}
           />
           <IconTagName tagName={'Facebook'} />
         </FacebookShareButton>
@@ -109,7 +131,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           <TelegramIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
-            onClick={handleOnSharingOnMedia}
+            onClick={() => handleOnSharingOnMedia({ type: 'te' })}
           />
           <IconTagName tagName={'Telegram'} />
         </TelegramShareButton>
@@ -122,32 +144,24 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           <TwitterIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
-            onClick={handleOnSharingOnMedia}
+            onClick={() => handleOnSharingOnMedia({ type: 'tw' })}
           />
           <IconTagName tagName={'Twitter'} />
         </TwitterShareButton>
-        {/* <WhatsappShareButton url={whatsappUrl} title={message} separator=":: "> */}
-        <WhatsappIcon
-          size={SOCIAL_ICON_SIZE}
-          style={{ borderRadius: '0.4em' }}
-          onClick={handleOnSharingOnMedia}
-        />
-        <IconTagName tagName={'Whatsapp'} />
-        {/* </WhatsappShareButton> */}
-        {/* <a href={whatsappShareUrl} target="_blank" rel="noopener noreferrer">
+        <WhatsappShareButton>
           <WhatsappIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
-            onClick={handleOnSharingOnMedia}
-          /> 
-          <p>Share on WhatsApp</p>
-        </a>*/}
+            onClick={() => handleOnSharingOnMedia({ type: 'wa' })}
+          />
+          <IconTagName tagName={'Whatsapp'} />
+        </WhatsappShareButton>
 
         <LinkedinShareButton url={'https://github.com/next-share'}>
           <LinkedinIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
-            onClick={handleOnSharingOnMedia}
+            onClick={() => handleOnSharingOnMedia({ type: 'li' })}
           />
           <IconTagName tagName={'LinkedIn'} />
         </LinkedinShareButton>
@@ -159,7 +173,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           <EmailIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
-            onClick={handleOnSharingOnMedia}
+            onClick={() => handleOnSharingOnMedia({ type: 'ml' })}
           />
           <IconTagName tagName={'Email'} />
         </EmailShareButton>
