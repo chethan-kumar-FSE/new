@@ -9,13 +9,29 @@ import { feedsServices } from '@/services/feedsService';
 export const generateMetadata = async ({ params }) => {
   const slug = params?.slug || [];
 
-  let title = 'Default Title';
-  let description = 'Default Description';
-  let imageUrl = 'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d'; // Default image
+  let title;
+  let description;
+  let imageUrl; // Default image
   let category = 'Meme';
   const siteUrl = process.env.NEXT_PUBLIC_API_URL;
-
+  let keywords;
   let ogUrl;
+
+  const response = await feedsServices.getFeedsSeo({
+    requestBody: {
+      lang: 'en',
+      type: 'home',
+      item: 'home',
+    },
+  });
+
+  const { meta_title, meta_description, meta_keywords } = response.data;
+
+  (title = meta_title), (description = meta_description);
+  keywords = meta_keywords;
+  imageUrl = `${siteUrl}/trends/media/images/hitzfeed-og-image.jpg`;
+  ogUrl = siteUrl;
+
   // Logic to customize metadata based on the slug
   if (slug.length === 1 && slug[0].includes('-p')) {
     const postId = slug[0].match(/-p(\d+)/)?.[1];
@@ -24,13 +40,15 @@ export const generateMetadata = async ({ params }) => {
         story_id: postId,
       },
     });
+    console.log('response', response.data[0]);
     const { news_title, id, url_string, share_image_link } = response.data[0];
     category = 'Meme';
 
     title = `${news_title} ${category} Quote Card - Hitzfeed`;
     (description = `${news_title} ${category} Quotes on Cards: Check the ${news_title} ${category} quotes in the form of flashcards at Hitzfeed.`),
       (ogUrl = `${siteUrl}/${url_string}-p${id}/`);
-    imageUrl = `https://imagesvs.oneindia.com/webp/trends${share_image_link}`; // Example for post-specific image
+    (keywords = `${title} ${category} quote on card, ${title} ${category} quote card, ${title}, ${category} quote cards, trending quote cards, latest ${category} quote cards, trending ${category} quote cards`),
+      (imageUrl = `https://imagesvs.oneindia.com/webp/trends${share_image_link}`);
   } else if (slug.length === 1 && slug[0].includes('-c')) {
     /* const categoryId = slug[0].split('-c')[1];
     title = `Category Page - ${categoryId}`;
@@ -39,16 +57,22 @@ export const generateMetadata = async ({ params }) => {
     // Example for category-specific image
   }
 
-  // Return the constructed metadata
   return {
     title: title,
     description: description,
-    keywords: `${title} ${category} quote on card, ${title} ${category} quote card, ${title}, ${category} quote cards, trending quote cards, latest ${category} quote cards, trending ${category} quote cards`,
+    keywords: keywords,
     openGraph: {
       title: title,
       description: description,
       url: ogUrl,
       images: [imageUrl],
+    },
+    metadataBase: new URL('https://www.hitzfeed.com/'),
+    alternates: {
+      canonical: '/',
+      languages: {
+        'en-US': '/en-US',
+      },
     },
   };
 };
