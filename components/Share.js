@@ -59,7 +59,8 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
       url = 'https://twitter.com/intent/tweet?text=' + text;
     }
     if (type == 'te') {
-      url = 'https://telegram.me/share/url?url=' + postUrl + '&text=' + title;
+      url =
+        'https://telegram.me/share/url?url=' + postUrl + '&text=' + newsTitle;
     }
     if (type == 'in') {
       url = 'https://www.instagram.com/?url=' + postUrl;
@@ -123,7 +124,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           />
           <IconTagName tagName={'Facebook'} />
         </FacebookShareButton>
-         <TelegramShareButton>
+        <TelegramShareButton>
           <TelegramIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
@@ -131,12 +132,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           />
           <IconTagName tagName={'Telegram'} />
         </TelegramShareButton>
-        <TwitterShareButton
-          url={'https://github.com/next-share'}
-          title={
-            'next-share is a social share buttons for your next React apps.'
-          }
-        >
+        <TwitterShareButton>
           <TwitterIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
@@ -153,7 +149,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           <IconTagName tagName={'Whatsapp'} />
         </WhatsappShareButton>
 
-        <LinkedinShareButton url={'https://github.com/next-share'}>
+        <LinkedinShareButton>
           <LinkedinIcon
             size={SOCIAL_ICON_SIZE}
             style={{ borderRadius: '0.4em' }}
@@ -211,3 +207,4 @@ const IconTagName = ({ tagName }) => {
     </p>
   );
 };
+
