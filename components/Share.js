@@ -124,10 +124,7 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
           <IconTagName tagName={'Facebook'} />
         </FacebookShareButton>
         <TelegramShareButton
-          url={'https://github.com/next-share'}
-          title={
-            'next-share is a social share buttons for your next React apps.'
-          }
+         
         >
           <TelegramIcon
             size={SOCIAL_ICON_SIZE}
