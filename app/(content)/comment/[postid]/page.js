@@ -53,11 +53,8 @@ function CommentSection({ params }) {
       setUserLikedCommentIds(response?.userlikecommentid);
       setNewsLanguage(response?.result?.lang);
     })();
-  }, [postid, fetchComments, userId]);
+  }, [postid,userId]);
 
-  /* useEffect(() => {
-    console.log('comments-section', comments);
-  }, [comments]); */
 
   useEffect(() => {
     // Scroll the container to the bottom whenever items change
