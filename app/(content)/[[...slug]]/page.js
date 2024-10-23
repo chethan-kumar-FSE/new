@@ -59,10 +59,12 @@ export const generateMetadata = async ({ params }) => {
         item: categoryName,
       },
     });
-    const { meta_title, meta_description, meta_keywords } = response.data;
+    const { id, meta_title, meta_description, meta_keywords } = response.data;
     title = `${meta_title} Category - Hitzfeed`;
     description = meta_description;
     keywords = meta_keywords;
+    ogUrl = `${siteUrl}/${categoryName}-c${id}/`;
+
     imageUrl = `https://www.hitzfeed.com/trends/media/images/category/250x250/${categoryName}_1.jpg`;
     // Example for category-specific image
   }
