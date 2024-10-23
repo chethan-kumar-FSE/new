@@ -41,7 +41,6 @@ export const generateMetadata = async ({ params }) => {
         story_id: postId,
       },
     });
-    console.log('response', response.data[0]);
     const { news_title, id, url_string, share_image_link } = response.data[0];
     category = 'Meme';
 
@@ -51,10 +50,20 @@ export const generateMetadata = async ({ params }) => {
     (keywords = `${title} ${category} quote on card, ${title} ${category} quote card, ${title}, ${category} quote cards, trending quote cards, latest ${category} quote cards, trending ${category} quote cards`),
       (imageUrl = `https://imagesvs.oneindia.com/webp/trends${share_image_link}`);
   } else if (slug.length === 1 && slug[0].includes('-c')) {
-    /* const categoryId = slug[0].split('-c')[1];
-    title = `Category Page - ${categoryId}`;
-    description = `Explore articles in the category ${categoryId}.`;
-    imageUrl = `https://example.com/images/categories/${categoryId}.jpg`; */
+    const categoryName = slug[0].split('-c')[0];
+
+    const response = await feedsServices.getCategorySeo({
+      requestBody: {
+        lang: 'en',
+        type: 'category',
+        item: categoryName,
+      },
+    });
+    const { meta_title, meta_description, meta_keywords } = response.data;
+    title = `${meta_title} Category - Hitzfeed`;
+    description = meta_description;
+    keywords = meta_keywords;
+    imageUrl = `https://www.hitzfeed.com/trends/media/images/category/250x250/${categoryName}_1.jpg`;
     // Example for category-specific image
   }
 
@@ -71,9 +80,6 @@ export const generateMetadata = async ({ params }) => {
     metadataBase: new URL('https://www.hitzfeed.com/'),
     alternates: {
       canonical: '/',
-      languages: {
-        'en-US': '/en-US',
-      },
     },
   };
 };
