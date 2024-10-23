@@ -143,13 +143,19 @@ function EditProf() {
       ...provided,
       backgroundColor: 'transparent', // Make the background transparent
       border: 'none', // Remove all borders
-      borderBottom: '2px solid white', // Only bottom border is visible
+      borderBottom: '1px solid #808080',
       borderRadius: 0, // Remove the default border radius
-      padding: '5px',
+      padding: '0.6em 0em',
       boxShadow: 'none',
+      margin: '0',
       '&:hover': {
         borderBottomColor: 'white', // Keep the white bottom border on hover
       },
+    }),
+    select: (provided) => ({
+      ...provided,
+      padding: '0', // Set padding for the input field to 0
+      margin: '0',
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
@@ -219,7 +225,7 @@ function EditProf() {
     );
   }
   return (
-    <div style={{ width: '100%', marginBottom: '4em' }}>
+    <div style={{ width: '100%', marginBottom: '4em', padding: '0 1em' }}>
       <div
         style={{ position: 'relative', margin: '1em auto', maxWidth: '440px' }}
       >
@@ -282,10 +288,10 @@ function EditProf() {
             src={session?.user?.image}
             alt="Profile"
             style={{
-              width: '100%',
-              height: '100%',
               objectFit: 'cover',
             }}
+            width={100}
+            height={100}
           />
           <div
             style={{
@@ -308,25 +314,25 @@ function EditProf() {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        style={{ maxWidth: '440px', margin: '0 auto', color: 'white' }}
+        style={{ maxWidth: '440px', margin: '1em auto', color: 'white' }}
       >
         {/* First Name */}
         <div style={{ marginBottom: '1em' }}>
-          <label style={{ display: 'block', marginBottom: '0.5em' }}>
-            First Name
-          </label>
+          <label style={{ display: 'block' }}>First Name</label>
           <input
             {...register('firstName', { required: true, minLength: 4 })}
             type="text"
             placeholder="Enter first name"
             style={{
               width: '100%',
-              padding: '0.5em',
               border: 'none',
-              borderBottom: '2px solid white',
+              borderBottom: '1px solid #808080',
               backgroundColor: 'transparent',
-              color: 'white',
               outline: 'none',
+              fontSize: '16px',
+              padding: '0.6em 0em',
+
+              color: '#fff',
             }}
           />
           {errors.firstName && (
@@ -336,20 +342,21 @@ function EditProf() {
 
         {/* Last Name */}
         <div style={{ marginBottom: '1em' }}>
-          <label style={{ display: 'block', marginBottom: '0.5em' }}>
-            Last Name
-          </label>
+          <label style={{ display: 'block' }}>Last Name</label>
           <input
             {...register('lastName', { required: true })}
             type="text"
             placeholder="Enter last name"
             style={{
               width: '100%',
-              padding: '0.5em',
+              padding: '0.6em 0em',
               border: 'none',
-              borderBottom: '2px solid white',
+              borderBottom: '1px solid #808080',
               backgroundColor: 'transparent',
-              color: 'white',
+              fontSize: '16px',
+              padding: '0.6em 0em',
+
+              color: '#fff',
               outline: 'none',
             }}
           />
@@ -360,45 +367,47 @@ function EditProf() {
 
         {/* Email */}
         <div style={{ marginBottom: '1em' }}>
-          <label style={{ display: 'block', marginBottom: '0.5em' }}>
-            Email
-          </label>
+          <label style={{ display: 'block' }}>Email</label>
           <input
-            {...register('email', { required: true, pattern: /^\S+@\S+$/i })}
+            {...register('email')}
             type="email"
             placeholder="Enter email"
             style={{
               width: '100%',
-              padding: '0.5em',
+              padding: '0.6em 0em',
               border: 'none',
-              borderBottom: '2px solid white',
+              borderBottom: '1px solid #808080',
               backgroundColor: 'transparent',
-              color: 'white',
+              fontSize: '16px',
+              padding: '0.6em 0em',
+
+              color: '#fff',
               outline: 'none',
             }}
             disabled
           />
-          {errors.email && (
+          {/* {errors.email && (
             <span style={{ color: 'red' }}>Valid email is required</span>
-          )}
+          )} */}
         </div>
 
         {/* Mobile Number */}
         <div style={{ marginBottom: '1em' }}>
-          <label style={{ display: 'block', marginBottom: '0.5em' }}>
-            Mobile Number
-          </label>
+          <label style={{ display: 'block' }}>Mobile Number</label>
           <input
             {...register('mobile', { required: true, pattern: /^[0-9]{10}$/ })}
             type="tel"
             placeholder="Enter mobile number"
             style={{
               width: '100%',
-              padding: '0.5em',
+              padding: '0.6em 0em',
               border: 'none',
-              borderBottom: '2px solid white',
+              borderBottom: '1px solid #808080',
               backgroundColor: 'transparent',
-              color: 'white',
+              fontSize: '16px',
+              padding: '0.6em 0em',
+
+              color: '#fff',
               outline: 'none',
             }}
           />
@@ -414,7 +423,7 @@ function EditProf() {
             display: 'flex',
             gap: '4em',
             justifyContent: 'space-between',
-            marginBottom: '2em',
+            marginBottom: '1em',
           }}
         >
           <div>
