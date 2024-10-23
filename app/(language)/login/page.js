@@ -44,7 +44,7 @@ export default function Login() {
 
         // Set cookies using a separate API call
         const cookieStartTime = performance.now(); // Start time for cookie API call
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/set-cookies`, {
+        await fetch(`/api/set-cookies`, {
           method: 'POST',
           body: JSON.stringify({
             username: username,
