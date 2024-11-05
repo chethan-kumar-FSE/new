@@ -74,7 +74,7 @@ const pwaConfig = withPWA({
         networkTimeoutSeconds: 10, // fallback to cache if API does not respond within 10 seconds
       },
     },
-    {
+    /* {
       // Cache image requests
       urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico|webp)$/i,
       handler: 'NetworkFirst', // Cache images
@@ -85,7 +85,7 @@ const pwaConfig = withPWA({
           maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
         },
       },
-    },
+    }, */
     {
       urlPattern: /\/_next\/static.+\.js$/i,
       handler: 'CacheFirst',
