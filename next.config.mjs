@@ -75,23 +75,23 @@ const pwaConfig = withPWA({
       },
     },
     {
-      // Cache image requests
-    urlPattern: /^https:\/\/www\.hitzfeed\.com\/trends\/media\/images\/category\/250x250\/.*\.(jpg|jpeg|png)$/,
-      handler: 'NetworkFirst', // Cache images
-      options: {
-        cacheName: 'image-cache',
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-        },
-         cacheableResponse: {
-        statuses: [0, 200],
+    // Matches any URL ending with common image file extensions
+    urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico|webp)$/i,
+    handler: 'CacheFirst',
+    options: {
+      cacheName: 'image-cache',
+      expiration: {
+        maxEntries: 100, // Adjust as needed
+        maxAgeSeconds: 60 * 60 * 24 * 30, // Cache images for 30 days
+      },
+      cacheableResponse: {
+        statuses: [0, 200], // Cache responses with these status codes
       },
       fetchOptions: {
-        mode: 'cors', // Allows cross-origin caching
+        mode: 'cors', // Enables cross-origin requests caching
       },
-      },
-    }, 
+    },
+  },
     {
       urlPattern: /\/_next\/static.+\.js$/i,
       handler: 'CacheFirst',
