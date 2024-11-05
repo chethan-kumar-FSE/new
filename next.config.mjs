@@ -76,7 +76,7 @@ const pwaConfig = withPWA({
     },
     {
       // Cache image requests
-      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico|webp)$/i,
+    urlPattern: /^https:\/\/www\.hitzfeed\.com\/trends\/media\/images\/category\/250x250\/.*\.(jpg|jpeg|png)$/,
       handler: 'NetworkFirst', // Cache images
       options: {
         cacheName: 'image-cache',
