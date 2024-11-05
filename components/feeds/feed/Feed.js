@@ -111,14 +111,16 @@ const Feed = (
           height: 'auto',
         }}
       >
-        <img
+        <Image
           src={`https://imagesvs.oneindia.com/webp/trends${imageLink}`}
           alt={imageLink}
           style={{
-            width: '100%',
-            height: '100%',
+          /*   width: '100%',
+            height: '100%', */
             objectFit: 'contain',
           }}
+          width="440"
+          height="200"
           loading={index === 0 ? 'eager' : 'lazy'}
         />
       </div>
