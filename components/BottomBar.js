@@ -15,26 +15,26 @@ export const BottomBar = async () => {
   const isLoggedIn = session && session?.user;
   const navItems = [
     {
-      iconUrl: 'https://demo3.greynium.com/hitzfeed/images/icons/home-icon.svg?v=1',
+      iconUrl: 'https://www.hitzfeed.com/trends/media/images/icons/home-icon.svg',
       navigateTo: `/${userPreferredLang}`,
     },
     {
       iconUrl:
-        'https://demo3.greynium.com/hitzfeed/images/icons/cards-icon.svg?v=1',
+        'https://demo3.greynium.com/hitzfeed/images/icons/cards-icon.svg',
       navigateTo: '',
     },
     {
       iconUrl:
-        'https://demo3.greynium.com/hitzfeed/images/icons/video-icon.svg?v=1',
+        'https://demo3.greynium.com/hitzfeed/images/icons/video-icon.svg',
       navigateTo: '',
     },
     {
-      iconUrl: 'https://demo3.greynium.com/hitzfeed/images/icons/news-icon.svg?v=1',
+      iconUrl: 'https://demo3.greynium.com/hitzfeed/images/icons/news-icon.svg',
       navigateTo: '',
     },
     {
       iconUrl:
-        'https://demo3.greynium.com/hitzfeed/images/icons/user-icon-white.svg?v=1',
+        'https://demo3.greynium.com/hitzfeed/images/icons/user-icon-white.svg',
       navigateTo: isLoggedIn ? `/profile/${username}` : '/login',
     },
   ];
