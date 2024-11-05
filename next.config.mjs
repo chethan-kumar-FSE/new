@@ -15,30 +15,7 @@ const pwaConfig = withPWA({
   reloadOnOnline: true,
   fallbacks: '',
 
-  runtimeCaching: [
-      {
-        urlPattern: /https:\/\/(www\.hitzfeed\.com|imagesvs\.oneindia\.com)\/.*/, // Match your external domains
-        handler: 'CacheFirst', // Use CacheFirst strategy to load cached images first
-        options: {
-          cacheName: 'external-image-cache', // Name of the cache storage
-          expiration: {
-            maxEntries: 50, // Max number of entries to cache
-            maxAgeSeconds: 30 * 24 * 60 * 60, // Cache images for 30 days
-          },
-        },
-      },
-      {
-        urlPattern: /.*\.(jpg|jpeg|png|gif|webp|svg)$/, // Match other image URLs globally
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'image-cache',
-          expiration: {
-            maxEntries: 100, // Max entries to cache
-            maxAgeSeconds: 30 * 24 * 60 * 60, // Cache for 30 days
-          },
-        },
-      },
-    ],
+
 });
 
 const nextConfig = {
