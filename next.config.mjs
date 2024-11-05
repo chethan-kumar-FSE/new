@@ -74,7 +74,7 @@ const pwaConfig = withPWA({
         networkTimeoutSeconds: 10, // fallback to cache if API does not respond within 10 seconds
       },
     },
-    {
+   /*  {
     // Matches any URL ending with common image file extensions
     urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico|webp)$/i,
     handler: 'CacheFirst',
@@ -91,7 +91,7 @@ const pwaConfig = withPWA({
         mode: 'cors', // Enables cross-origin requests caching
       },
     },
-  },
+  }, */
     {
       urlPattern: /\/_next\/static.+\.js$/i,
       handler: 'CacheFirst',
