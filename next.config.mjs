@@ -74,24 +74,17 @@ const pwaConfig = withPWA({
         networkTimeoutSeconds: 10, // fallback to cache if API does not respond within 10 seconds
       },
     },
-   /*  {
-    // Matches any URL ending with common image file extensions
-    urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico|webp)$/i,
-    handler: 'CacheFirst',
+  {
+    urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
+    handler: 'StaleWhileRevalidate',
     options: {
-      cacheName: 'image-cache',
+      cacheName: 'static-image-assets',
       expiration: {
-        maxEntries: 100, // Adjust as needed
-        maxAgeSeconds: 60 * 60 * 24 * 30, // Cache images for 30 days
-      },
-      cacheableResponse: {
-        statuses: [0, 200], // Cache responses with these status codes
-      },
-      fetchOptions: {
-        mode: 'cors', // Enables cross-origin requests caching
-      },
-    },
-  }, */
+        maxEntries: 64,
+        maxAgeSeconds: 24 * 60 * 60 // 24 hours
+      }
+    }
+  },
     {
       urlPattern: /\/_next\/static.+\.js$/i,
       handler: 'CacheFirst',
