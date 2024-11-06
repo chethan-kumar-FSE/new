@@ -60,7 +60,7 @@ const Feed = (
           alignItems: 'center',
         }}
       >
-        <Image
+        <img
           src={userImage}
           width={40}
           height={40}
