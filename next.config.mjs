@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 import withPWA from '@ducanh2912/next-pwa';
+import { runtimeCaching as run } from './utils/runtimeCaching';
 
 const pwaConfig = withPWA({
   dest: 'public',
@@ -14,7 +15,9 @@ const pwaConfig = withPWA({
   aggressiveFrontEndNavCaching: true,
   reloadOnOnline: true,
   fallbacks: '',
-
+ workboxOptions: {
+    runtimeCaching: run,
+  },
 });
 
 const nextConfig = {
