@@ -14,7 +14,6 @@ const pwaConfig = withPWA({
   aggressiveFrontEndNavCaching: true,
   reloadOnOnline: true,
   fallbacks: '',
-  customWorkerDest: '/service-worker.js',
 
 });
 
