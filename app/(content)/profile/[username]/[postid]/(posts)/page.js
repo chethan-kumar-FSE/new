@@ -1,12 +1,19 @@
 'use client';
 import InitialFeeds from '@/components/feeds/feeds';
+import Loader from '@/components/Loader';
 import { useUserCommonId } from '@/context/userCommonId';
 import useResource from '@/hooks/useResource';
 import { userService } from '@/services/userService';
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import CommonHeader from '@/components/CommonHeader';
 
 function UserPost({ params }) {
-  const { postid } = params;
+  // const { postid } = params;
+  const router = useRouter();
+  const { username, postid } = params;
+  console.log('aprams', params);
+
   const {
     isLoading,
     error,
@@ -22,18 +29,26 @@ function UserPost({ params }) {
         },
       });
     })();
-  }, [fetchData, postid]);
+  }, [postid]);
 
-  if (isLoading) {
-    return <p>Loading...</p>;
+  if (error) {
+    throw new Error();
   }
+
   return (
     <>
-      {userPost.length > 0 && (
+      <CommonHeader shouldDisplay />
+      {isLoading && (
+        <div className="relative top-[100px]">
+          <Loader />
+        </div>
+      )}
+      {userPost?.length > 0 && (
         <InitialFeeds
           initialFeedsOnLoad={userPost}
           isFromUserProf={true}
           userCommonId={userCommonId}
+          currentPostId={postid}
         />
       )}
     </>

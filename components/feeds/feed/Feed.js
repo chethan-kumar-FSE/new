@@ -1,7 +1,4 @@
-import { useBackdropContext } from '@/context/backdrop';
-import FollowButton from '@/components/Follow';
 import React, { forwardRef } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import DownloadCount from '../DownloadCount';
 import ViewCount from '../ViewCount';
@@ -9,7 +6,8 @@ import LikeButton from '../LikeButton';
 import CommentButton from '../CommentButton';
 import FavButton from '../FavButton';
 import ShareCount from '../ShareCount';
-import Head from 'next/head';
+import FollowButton from '../FollowButton';
+import FallbackImage from '@/components/FallbackImage';
 
 const Feed = (
   {
@@ -34,107 +32,66 @@ const Feed = (
     userShare,
     userSave,
     index,
+    userFollow,
+    channelId,
   },
   ref
 ) => {
-  const fontSize = '12px';
-  console.log('rendering');
-
   return (
     <div
-      style={{
-        color: 'white',
-        width: '100%',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1em',
-      }}
+      className="text-[#fff] w-[100%]  relative flex flex-col gap-[1em]"
       ref={ref} // Use the ref here
     >
       {/* User Info and Follow Button */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '1em',
-          alignItems: 'center',
-        }}
-      >
-        <img
-          src={userImage}
-          width={40}
-          height={40}
-          style={{ borderRadius: '50%' }}
+      <div className="grid grid-cols-[40px_1fr_120px_1fr] items-center gap-x-4">
+        {/* Profile Image */}
+        <FallbackImage
+          sr={userImage}
+          className="rounded-full w-[40px] h-[40px]"
           alt={userImage}
           loading={index === 0 ? 'eager' : 'lazy'}
+          userFallback={true}
         />
+
+        {/* Username */}
         <Link
-          style={{ color: '#fff', textDecoration: 'none' }}
           href={`/profile/${secureUserId}`}
           scroll={false}
+          className="text-[#fff] text-[12px] no-underline"
         >
           {userName}
         </Link>
-        {/* <FollowButton /> */}
-        <button
-          style={{
-            padding: '1px 12px',
-            background: '#fff',
-            borderRadius: '10px',
-            textAlign: 'center',
-            border: 'none',
-            outline: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          follow
-        </button>
-        <span
-          style={{
-            width: '200px',
-            height: '1px',
-            backgroundColor: 'white',
-          }}
-        ></span>
-      </div>
 
+        {/* Follow Button */}
+        <FollowButton
+          userFollow={userFollow}
+          newsLanguage={newsLanguage}
+          articleId={id}
+          channelId={channelId}
+        />
+
+        {/* Line */}
+        <span className="w-full h-[1px] bg-[#fff]"></span>
+      </div>
       {/* News Title */}
-      <div style={{ fontSize: '12px' }}>
+      <div className="text-[12px] lg:text-[14px]">
         <p>{newsTitle}</p>
       </div>
 
       {/* Image Display */}
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: 'auto',
-        }}
-      >
-        <Image
-          src={`https://imagesvs.oneindia.com/webp/trends${imageLink}`}
-          alt={imageLink}
-          style={{
-          /*   width: '100%',
-            height: '100%', */
-            objectFit: 'contain',
-          }}
-          width="440"
-          height="200"
+      <div className="relative w-[100%] h-[auto]">
+        <FallbackImage
+          sr={`https://imagesvs.oneindia.com/webp/trends${imageLink}`}
+          alt=""
+          className={'w-[100%] h-[100%] rounded-[0.5em]'}
           loading={index === 0 ? 'eager' : 'lazy'}
         />
       </div>
 
       {/* Interaction Icons: Like, Save, Share */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginTop: '1em',
-        }}
-      >
-        <div>
-          <div style={{ display: 'flex', gap: '1em' }}>
+      <div className="flex justify-between my-[1em] text-[12px] text-center">
+        <>
+          <div className="flex gap-[1em]">
             <ViewCount
               viewCount={viewCount}
               newsLanguage={newsLanguage}
@@ -148,9 +105,9 @@ const Feed = (
             />
             <CommentButton commentCount={commentCount} articleId={id} />
           </div>
-        </div>
-        <div>
-          <div style={{ display: 'flex', gap: '1em' }}>
+        </>
+        <>
+          <div className="flex gap-[1em]">
             <FavButton
               saveCount={saveCount}
               articleId={id}
@@ -173,7 +130,7 @@ const Feed = (
               newsTitle={newsTitle}
             />
           </div>
-        </div>
+        </>
       </div>
     </div>
   );

@@ -2,101 +2,72 @@
 import { useBackdropContext } from '@/context/backdrop';
 import useResource from '@/hooks/useResource';
 import { langService } from '@/services/langService';
-import Cookies from 'js-cookie';
-import { fetchData } from 'next-auth/client/_utils';
-import { useRouter } from 'next/navigation'; // Use Next.js router for navigation
 
 import React, { useState, useEffect } from 'react';
-import CommonHeader from './CommonHeader';
+import Loader from './Loader';
 
 function LanguageSelection({ isFromHome }) {
   const [languages, setLanguages] = useState([]);
-  const router = useRouter(); // Router for manual navigation
-  //const { toggleBackdropStatus } = useBackdropContext();
+  const { toggleBackdropStatus } = useBackdropContext();
   const {
     isLoading,
     error,
-    fetchData: fetchLanguages,
-  } = useResource(langService.getLanguages);
+    fetchData: getLanguages,
+  } = useResource(langService?.getLanguages);
+
   useEffect(() => {
     (async () => {
-      const response = await fetchLanguages();
-      setLanguages(response);
+      const languages = await getLanguages();
+      console.log('langauges');
+      setLanguages(languages);
     })();
   }, []);
 
-  const handleOnLanguageSelection = (displayShort, href) => {
+  const handleOnLanguageSelection = async (displayShort, href) => {
     // Set the language cookie and navigate only after cookie is set
 
-    Cookies.set('language', displayShort, { expires: 7 });
+    if (!isFromHome) {
+      toggleBackdropStatus({ boolVal: false });
+    }
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/set-cookies`, {
+      method: 'POST',
+      body: JSON.stringify({
+        language: displayShort,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-    //stoggleBackdropStatus();
-    router.push(href); // Use router to push to the href
+    const redirectTo = displayShort === 'en' ? '/' : `/${displayShort}`;
+
+    window.location.href = redirectTo; // Use router to push to the href
   };
 
+  if (error) {
+    throw new Error('Something went wrong !');
+  }
+
   if (isLoading) {
-    return (
-      <p
-        style={{
-          color: '#fff',
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%,-50%)',
-        }}
-      >
-        Loading....
-      </p>
-    );
+    return <Loader />;
   }
 
   return (
     <div
-      style={{
-        width: '100%',
-        maxWidth: '1200px', // You can set the maxWidth here
-        margin: '0 auto', // Center the container
-        background: isFromHome ? '#00000' : '#1b1b1b',
-        color: '#fff',
-        height: isFromHome ? '100vh' : 'auto',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column',
-        padding: '20px', // Optional padding for breathing space
-      }}
+      className={`w-full ${
+        isFromHome ? 'bg-black h-screen' : 'bg-[#1b1b1b]'
+      } text-white flex justify-center items-center flex-col p-5`}
     >
-      <div style={{ width: '100%', maxWidth: '440px' }}>
-        <CommonHeader />
-        <p style={{ textAlign: 'center', padding: '24px 0px' }}>
-          Select languages
-        </p>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)', // 50% width for two columns
-            columnGap: '1em',
-            rowGap: '0.5em',
-            margin: '0 auto',
-            position: 'relative',
-          }}
-        >
+      <div className="w-full max-w-[440px]">
+        {/* <CommonHeader /> */}
+        <p className="text-center py-6">Select languages</p>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 mx-auto relative">
           {languages?.map((lang, index) => {
             const href = `/${lang.display_short}`;
             return (
               <div
                 key={index}
-                style={{
-                  textAlign: 'center',
-                  border: '1px solid #4a4a4a',
-                  padding: '12px 20px',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  height: '65px',
-                  overflow: 'hidden',
-                  color: 'white',
-                  width: '100%',
-                }}
+                className="text-center border border-[#4a4a4a] p-3 rounded-xl cursor-pointer h-16 overflow-hidden text-white w-full"
                 onClick={() =>
                   handleOnLanguageSelection(lang.display_short, href)
                 }

@@ -5,26 +5,24 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-function NavLink({ href, linkName }) {
+function NavLink({ href, linkName, keyName }) {
   const pathname = usePathname(); // Get the current pathname
-
   // Check if the current pathname starts with the href
-  const isActive = pathname === href || pathname.startsWith(`${href}/`);
 
+  const regExp = {
+    feeds: /^(\/|\/[a-zA-Z]{2}(\/[a-zA-Z0-9-]+-p\d+)?)$/, // Matches feeds
+    trending: /^\/([a-zA-Z]{2}\/)?trending$/, // Matches trending
+  };
+
+  const isActive = regExp[keyName].test(pathname);
   return (
     <Link
       href={href}
-      style={{
-        textAlign: 'center',
-        fontWeight: 'bold',
-        padding: '10px',
-        fontSize: '16px',
-        position: 'relative',
-        background: isActive ? '#1b1b1b' : 'transparent',
-        color: isActive ? '#8500ff' : '#fff',
-        borderBottom: isActive ? '5px solid #8500ff' : 'none',
-        textDecoration: 'none',
-      }}
+      className={`text-center font-bold p-1 text-[16px] relative ${
+        isActive
+          ? 'bg-[#1b1b1b] text-[#8500ff] border-b-4 border-[#8500ff]'
+          : 'bg-transparent text-white border-none'
+      }`}
     >
       {linkName}
     </Link>

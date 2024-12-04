@@ -4,7 +4,6 @@ import { COMMON_HITZFEED_URL } from '@/utils/constant';
 
 export const userService = {
   async login({ requestBody }) {
-    console.log('commongurl', COMMON_HITZFEED_URL);
     return tryCatchWrapper(async () => {
       const { data } = await apiClient.post({
         action: 'login',
@@ -74,6 +73,16 @@ export const userService = {
     return tryCatchWrapper(async () => {
       const { data } = await apiClient.post({
         action: 'update-user-details',
+        requestBody,
+        url: COMMON_HITZFEED_URL,
+      });
+      return data;
+    });
+  },
+  async getUserProfileSavedCards({ requestBody }) {
+    return tryCatchWrapper(async () => {
+      const { data } = await apiClient.post({
+        action: 'get-user-profile-saved-cards',
         requestBody,
         url: COMMON_HITZFEED_URL,
       });

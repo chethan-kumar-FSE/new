@@ -4,10 +4,10 @@ import { apiClient } from './apiclient';
 export const commentService = {
   async getComments({ articleId, userId }) {
     return tryCatchWrapper(async () => {
-      const response = await apiClient.get({
+      const { result, userlikecommentid } = await apiClient.get({
         url: `https://users.oneindia.com/livecomments/commentslist?articleid=${articleId}&userid=${userId}`,
       });
-      return response;
+      return { result, userlikecommentid };
     });
   },
   async postComment({ requestBody }) {
@@ -17,18 +17,17 @@ export const commentService = {
         requestBody,
         directFormData: true,
       });
-      console.log('commmetn-reooky', response);
       return response;
     });
   },
   async updateCommentLike({ requestBody }) {
     return tryCatchWrapper(async () => {
-      const response = await apiClient.post({
+      const { like_count } = await apiClient.post({
         requestBody,
         url: 'https://users.oneindia.com/livecomments/updatelikes',
         directFormData: true,
       });
-      return response;
+      return like_count;
     });
   },
 };

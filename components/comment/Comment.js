@@ -1,13 +1,10 @@
 'use client';
 import Link from 'next/link';
-import React, { useState } from 'react';
-import CommentInput from './CommentInput';
+import React from 'react';
 import { useReplyingUser } from '@/context/replyingUser';
-import { timeAgo } from '@/utils/timestamp';
 import Timer from './Timer';
 import LikeButton from './LikeButton';
-import { likeService } from '@/services/likeService';
-import Image from 'next/image';
+import FallbackImage from '../FallbackImage';
 
 function Comment({
   comment,
@@ -21,27 +18,24 @@ function Comment({
   articleId,
   newsLanguage,
 }) {
+  //to store the replying user details later to send with an API request body
   const { handleOnSetReplyingTo } = useReplyingUser();
-  console.log('likecount', likecount);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-      <div style={{ display: 'flex', gap: '1.3em' }}>
+    <div className="flex justify-between">
+      <div className="flex gap-[1.3em]">
         <div>
-          <Image
-            src={userProfileImage}
+          <FallbackImage
+            userFallback={true}
+            sr={userProfileImage}
             alt="somehint"
-            style={{ width: '40px', height: '40px', borderRadius: '50%' }}
+            className={'rounded-[50%] w-[40px] h-[40px]'}
           />
         </div>
-        <div style={{ display: 'flex', gap: '0.5em', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', gap: '1em', alignItems: 'center' }}>
+        <div className="flex gap-[0.5em] flex-col">
+          <div className="flex gap-[1em] items-center">
             <Link
-              style={{
-                textDecoration: 'none',
-                outline: 'none',
-                color: '#0066cc',
-              }}
+              className="no-underline outline-none text-[#0066cc]"
               href={'/'}
             >
               {userName}
@@ -49,16 +43,10 @@ function Comment({
             <Timer timestamp={timestamp} />
           </div>
 
-          <p style={{ fontSize: '12px', color: '#d2d5d9' }}>{comment}</p>
+          <p className="text-[12px] text-[#d2d5d9]">{comment}</p>
           <div>
             <button
-              style={{
-                color: '#fff',
-                background: 'transparent',
-                outline: 'none',
-                border: 'none',
-                cursor: 'pointer',
-              }}
+              className="text-[#fff] bg-transparent outline-none border-none cursor-pointer text-[12px]"
               onClick={() =>
                 handleOnSetReplyingTo({
                   mainCommentId: commentId,

@@ -22,28 +22,31 @@ import Image from 'next/image';
 import { feedsServices } from '@/services/feedsService';
 import Cookies from 'js-cookie';
 
-export const ShareButtons = ({ postDetailsOnShare }) => {
+function ShareButtons({ postDetailsOnShare }) {
   const { toggleBackdropStatus } = useBackdropContext();
 
   const { postId, postImage, urlString, newsTitle, newsLanguage } =
     postDetailsOnShare;
-  const postUrl = window.location.hostname; // Get the current URL of the post
-   const protocol = window.location.protocol;
-  const link = `${protocol}//${postUrl}/${urlString}-p${postId}`;
+  let language = Cookies.get('language');
 
-  
+  const postUrl = window.location.hostname;
+  const protocol = window.location.protocol;
+
+  let link = `${protocol}//${postUrl}/${urlString}-p${postId}`;
+  if (language) {
+    link = `${protocol}//${postUrl}/${language}/${urlString}-p${postId}`;
+  }
   const userId = Cookies.get('userId');
-  //let link = `${postUrl}/${urlString}-p${postId}`;
 
   const handleOnClipboardCopy = async () => {
-    toggleBackdropStatus();
+    toggleBackdropStatus({ boolVal: true });
     await navigator.clipboard?.writeText(link);
 
     notify({ message: 'Link copied to clipboard' });
   };
 
   const handleOnEmbeddedCopy = async () => {
-    toggleBackdropStatus();
+    toggleBackdropStatus({ boolVal: true });
     const embeddedCode = getEmbeddedCode({ postId: postId });
     await navigator.clipboard?.writeText(embeddedCode);
 
@@ -51,174 +54,161 @@ export const ShareButtons = ({ postDetailsOnShare }) => {
   };
 
   const handleOnSharingOnMedia = async ({ type }) => {
-    // const message = `${newsTitle}\n${postUrl}`; // Message to send with the link
-
-   /*  const response = await feedsServices.getUpdatedShareCount({
-      requestBody: {
-        articleid: postId,
-        sharecount: 1,
-        userid: userId,
-        lang: newsLanguage,
-      },
-    });
-    console.log('responsebody for sharecount', response); */
-
     let text = newsTitle + '  ' + link + ' Hitzfeed by Oneindia';
     let url;
-    if (type == 'wa') {
+    if (type === 'wa') {
       url = `https://api.whatsapp.com/send?text=${text}`;
     }
-    if (type == 'fb') {
+    if (type === 'fb') {
       url = 'https://www.facebook.com/sharer/sharer.php?u=' + link;
     }
-    if (type == 'tw') {
+    if (type === 'tw') {
       url = 'https://twitter.com/intent/tweet?text=' + text;
     }
-    if (type == 'te') {
+    if (type === 'te') {
       url = 'https://telegram.me/share/url?url=' + link + '&text=' + newsTitle;
     }
-    if (type == 'in') {
+    if (type === 'in') {
       url = 'https://www.instagram.com/?url=' + link;
     }
-    if (type == 'li') {
+    if (type === 'li') {
       url = 'http://www.linkedin.com/shareArticle?mini=true&url=' + link;
     }
-    if (type == 'ml') {
+    if (type === 'ml') {
       url = 'mailto:?subject=' + newsTitle + '&body=' + text;
     }
     window.open(url, '_blank');
+    try {
+      await feedsServices.getUpdatedShareCount({
+        requestBody: {
+          articleid: postId,
+          sharecount: 1,
+          userid: userId,
+          lang: newsLanguage,
+        },
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
   };
+
   return (
     <div
-      style={{
-        width: '100%',
-        background: '#262322',
-        padding: '4em 0',
-        position: 'fixed',
-        bottom: '60px',
-        zIndex: 100,
-        transition: 'bottom 5s ease-in-out', // Corrected property
-      }}
+      className="w-full bg-[#262322] py-16 fixed bottom-0 z-50 transition-all duration-500 ease-in-out"
       onClick={(e) => e.stopPropagation()}
     >
-      <div
-        div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr 1fr',
-          width: '300px',
-          rowGap: '3em',
-          margin: '0 auto',
-        }}
-      >
+      <div className="grid grid-cols-4 gap-x-8 gap-y-12 w-72 mx-auto">
+        {/* Copy Link Section */}
         <div
-          style={{ textAlign: 'center', cursor: 'pointer' }}
-          onClick={() => handleOnClipboardCopy()}
+          className="text-center cursor-pointer flex flex-col items-center justify-center"
+          onClick={handleOnClipboardCopy}
         >
           <Image
-            src={
-              'https://www.hitzfeed.com/trends/media/flashcard/copy-icon.svg'
-            }
-            alt="sometin"
+            src="/others/copyIcon.svg"
+            alt="Copy Link"
             width={45}
             height={45}
+            className="mx-auto"
           />
-          <IconTagName tagName={'Copy Link'} />
+          <IconTagName tagName="Copy" />
         </div>
-        <FacebookShareButton
-          url={'https://github.com/next-share'}
-          quote={
-            'next-share is a social share buttons for your next React apps.'
-          }
-          hashtag={'#nextshare'}
-        >
-          <FacebookIcon
-            size={SOCIAL_ICON_SIZE}
-            style={{ borderRadius: '0.4em' }}
-            onClick={() => handleOnSharingOnMedia({ type: 'fb' })}
-          />
-          <IconTagName tagName={'Facebook'} />
+
+        {/* Facebook Share Section */}
+        <FacebookShareButton url={link} quote={newsTitle} hashtag="#nextshare">
+          <div className="flex flex-col items-center justify-center text-center">
+            <FacebookIcon
+              size={SOCIAL_ICON_SIZE}
+              className="rounded-md"
+              onClick={() => handleOnSharingOnMedia({ type: 'fb' })}
+            />
+            <IconTagName tagName="Facebook" />
+          </div>
         </FacebookShareButton>
+
+        {/* Telegram Share Section */}
         <TelegramShareButton>
-          <TelegramIcon
-            size={SOCIAL_ICON_SIZE}
-            style={{ borderRadius: '0.4em' }}
-            onClick={() => handleOnSharingOnMedia({ type: 'te' })}
-          />
-          <IconTagName tagName={'Telegram'} />
+          <div className="flex flex-col items-center justify-center text-center">
+            <TelegramIcon
+              size={SOCIAL_ICON_SIZE}
+              className="rounded-md"
+              onClick={() => handleOnSharingOnMedia({ type: 'te' })}
+            />
+            <IconTagName tagName="Telegram" />
+          </div>
         </TelegramShareButton>
+
+        {/* Twitter Share Section */}
         <TwitterShareButton>
-          <TwitterIcon
-            size={SOCIAL_ICON_SIZE}
-            style={{ borderRadius: '0.4em' }}
-            onClick={() => handleOnSharingOnMedia({ type: 'tw' })}
-          />
-          <IconTagName tagName={'Twitter'} />
+          <div className="flex flex-col items-center justify-center text-center">
+            <TwitterIcon
+              size={SOCIAL_ICON_SIZE}
+              className="rounded-md"
+              onClick={() => handleOnSharingOnMedia({ type: 'tw' })}
+            />
+            <IconTagName tagName="Twitter" />
+          </div>
         </TwitterShareButton>
+
+        {/* WhatsApp Share Section */}
         <WhatsappShareButton>
-          <WhatsappIcon
-            size={SOCIAL_ICON_SIZE}
-            style={{ borderRadius: '0.4em' }}
-            onClick={() => handleOnSharingOnMedia({ type: 'wa' })}
-          />
-          <IconTagName tagName={'Whatsapp'} />
+          <div className="flex flex-col items-center justify-center text-center">
+            <WhatsappIcon
+              size={SOCIAL_ICON_SIZE}
+              className="rounded-md"
+              onClick={() => handleOnSharingOnMedia({ type: 'wa' })}
+            />
+            <IconTagName tagName="Whatsapp" />
+          </div>
         </WhatsappShareButton>
 
+        {/* LinkedIn Share Section */}
         <LinkedinShareButton>
-          <LinkedinIcon
-            size={SOCIAL_ICON_SIZE}
-            style={{ borderRadius: '0.4em' }}
-            onClick={() => handleOnSharingOnMedia({ type: 'li' })}
-          />
-          <IconTagName tagName={'LinkedIn'} />
+          <div className="flex flex-col items-center justify-center text-center">
+            <LinkedinIcon
+              size={SOCIAL_ICON_SIZE}
+              className="rounded-md"
+              onClick={() => handleOnSharingOnMedia({ type: 'li' })}
+            />
+            <IconTagName tagName="LinkedIn" />
+          </div>
         </LinkedinShareButton>
-        <EmailShareButton
-          url={'https://github.com/next-share'}
-          subject={'Next Share'}
-          body="body"
-        >
-          <EmailIcon
-            size={SOCIAL_ICON_SIZE}
-            style={{ borderRadius: '0.4em' }}
-            onClick={() => handleOnSharingOnMedia({ type: 'ml' })}
-          />
-          <IconTagName tagName={'Email'} />
+
+        {/* Email Share Section */}
+        <EmailShareButton url={link} subject={newsTitle} body={newsTitle}>
+          <div className="flex flex-col items-center justify-center text-center">
+            <EmailIcon
+              size={SOCIAL_ICON_SIZE}
+              className="rounded-md"
+              onClick={() => handleOnSharingOnMedia({ type: 'ml' })}
+            />
+            <IconTagName tagName="Email" />
+          </div>
         </EmailShareButton>
+
+        {/* Embed Section */}
         <div
-          style={{ textAlign: 'center', cursor: 'pointer' }}
-          onClick={() => handleOnEmbeddedCopy()}
+          className="text-center cursor-pointer flex flex-col items-center justify-center"
+          onClick={handleOnEmbeddedCopy}
         >
           <Image
-            src={
-              'https://www.hitzfeed.com/trends/media/flashcard/embed-icon.svg'
-            }
-            alt="sometin"
+            src="/others/embedIcon.svg"
+            alt="Embed"
             width={45}
             height={45}
+            className="mx-auto"
           />
-          <IconTagName tagName={'Embed'} />
+          <IconTagName tagName="Embed" />
         </div>
       </div>
 
       <RxCross1
-        style={{
-          fontSize: '2em',
-          position: 'absolute',
-          right: '10px',
-          color: 'white',
-          top: '10px',
-          cursor: 'pointer',
-        }}
-        onClick={() => toggleBackdropStatus()}
+        className="text-white text-2xl absolute top-2 right-2 cursor-pointer"
+        onClick={() => toggleBackdropStatus({ boolVal: false })}
       />
     </div>
   );
-};
-
-const IconTagName = ({ tagName }) => {
-  return (
-    <p style={{ color: '#d2d5d9', fontSize: '10px', marginTop: '3px' }}>
-      {tagName}
-    </p>
-  );
-};
+}
+const IconTagName = ({ tagName }) => (
+  <p className="text-[#d2d5d9] text-xs mt-2">{tagName}</p>
+);
+export default ShareButtons;

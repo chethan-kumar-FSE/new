@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import { useBackdropContext } from '@/context/backdrop';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,7 +7,7 @@ function Backdrop({ children }) {
   const { isBackdropOpen, toggleBackdropStatus } = useBackdropContext();
 
   const handleOnOverlayClick = () => {
-    toggleBackdropStatus();
+    toggleBackdropStatus({ boolVal: false });
   };
   return (
     <AnimatePresence>
@@ -23,8 +24,9 @@ function Backdrop({ children }) {
             width: '100vw', // Full viewport width
             height: '100vh', // Full viewport height
             backgroundColor: 'rgba(0, 0, 0,0.6)', // Semi-transparent background
-            zIndex: 100, // Ensure it appears above other content
+            zIndex: 10, // Ensure it appears above other content
           }}
+          // className="fixed top-0 left-0 w-[100vw] h-[100vh] bg-[rgba(0,0,0,0.6)] z-100"
           onClick={() => handleOnOverlayClick()}
         >
           {children}

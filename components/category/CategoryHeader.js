@@ -1,36 +1,19 @@
-import { genreService } from '@/services/genreService';
 import React from 'react';
 import CommonHeader from '../CommonHeader';
 
-async function CategoryHeader({ genreName }) {
+function CategoryHeader({ genreName }) {
   return (
-    <div
-      style={{
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5em',
-        marginBottom: '0.5em',
-      }}
-    >
-      <CommonHeader />
-      <div style={{ background: '#1b1b1b' }}>
-        <p
-          style={{
-            display: 'block',
-            textAlign: 'center',
-            color: '#8500ff',
-            fontWeight: 'bold',
-            padding: '10px',
-            fontSize: '16px',
-            background: '#1b1b1b',
-            position: 'relative',
-          }}
-        >
-          {genreName}
-        </p>
+    <>
+      <CommonHeader shouldDisplay />
+      <div className="text-center flex flex-col gap-[0.5em] ">
+        {/* shouldDisplay flag check is for setting icon to show or not */}
+        <div className="bg-[#1b1b1b]">
+          <p className="block text-center text-[#8500ff] p-[10px] bg-[#1b1b1b] relative font-bold">
+            {genreName}
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

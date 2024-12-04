@@ -1,12 +1,7 @@
 'use client';
 import Cookies from 'js-cookie';
-import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useInView, InView } from 'react-intersection-observer';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import Backdrop from '@/share/backdrop';
-
-import { ShareButtons } from '../Share';
 import Feed from './feed/Feed';
 import { feedsServices } from '@/services/feedsService';
 import { useBackdropContext } from '@/context/backdrop';
@@ -14,6 +9,17 @@ import { genreService } from '@/services/genreService';
 import WidgetTemplates from './widgetTemplates/WidgetTemplates';
 import { WIDGETS_INTERVALS } from '@/utils/constant';
 import { userService } from '@/services/userService';
+import { checkConnectionAndNotify } from '@/utils/network';
+import { notify } from '@/utils/Toast';
+import dynamic from 'next/dynamic';
+import db from '@/lib/db';
+
+const BackdropDynamicImport = dynamic(() => import('@/share/backdrop'), {
+  ssr: false,
+});
+const ShareButtonsDynamicImport = dynamic(() => import('../Share'), {
+  ssr: false,
+});
 
 export default function InitialFeeds({
   initialFeedsOnLoad = [],
@@ -21,10 +27,19 @@ export default function InitialFeeds({
   genreId,
   lang,
   isFromUserProf,
+  userCommonId,
+  isFromTrending,
+  isFromSaved,
+  currentPostId,
 }) {
+  console.log('ffeeds', initialFeedsOnLoad);
   const [feedsPosts, setFeedsPosts] = useState([...initialFeedsOnLoad]);
+  const [lastTimeStamp, setLastTimeStamp] = useState(
+    initialFeedsOnLoad[initialFeedsOnLoad?.length - 1]?.timestamp
+  );
+
   const [lastId, setLastId] = useState(
-    initialFeedsOnLoad[initialFeedsOnLoad.length - 1]?.id
+    initialFeedsOnLoad[initialFeedsOnLoad?.length - 1]?.last_id
   );
 
   const postIdRef = useRef(null);
@@ -37,27 +52,18 @@ export default function InitialFeeds({
 
   const [nextPage, setNextPage] = useState(2);
   const { ref, inView } = useInView({
-    threshold: 0.1, // Trigger when 10% of the element is in view
+    threshold: 0.7, // Trigger when 10% of the element is in view
   });
-
-  const { data: session } = useSession();
 
   const { toggleBackdropStatus } = useBackdropContext();
 
-  const router = useRouter();
   //memoise the value from cookies
-  const userPrefferedLangFromCookies = useMemo(() => {
-    const cookieData = lang || 'en';
-
-    return cookieData;
-  }, [lang]);
   const commonUserId = Cookies.get('commonUserId');
 
   const updateUrlWithPostID = (postID, urlString) => {
-    console.log('loggeer', postID);
     // Get the current path and split it based on '/'
 
-    if (isFromGenre) {
+    if (isFromGenre || isFromTrending | isFromSaved) {
       const postIdEvent = new CustomEvent(`postIDUpdated-${postID}`, {
         detail: { postID },
       });
@@ -70,10 +76,7 @@ export default function InitialFeeds({
     let basePath = pathSegments[0]; // Root or base path
 
     // Define the language segment if needed
-    if (userPrefferedLangFromCookies !== 'en') {
-      const lang = userPrefferedLangFromCookies;
-      basePath += `/${lang}`;
-    }
+    basePath = lang && lang !== 'en' ? (basePath += `/${lang}`) : basePath;
 
     if (postID) {
       const newUrl = `${basePath}/${urlString}-p${postID}`;
@@ -82,17 +85,14 @@ export default function InitialFeeds({
       const postIdEvent = new CustomEvent(`postIDUpdated-${postID}`, {
         detail: { postID },
       });
-      console.log('dispatching');
       window.dispatchEvent(postIdEvent);
       //  lastPostID = postID;
     } else {
-      console.log('Resetting to default path');
       window.history.replaceState({}, '', basePath === '' ? '/' : basePath);
     }
   };
 
   const setInView = (inView, entry, id, index, urlString) => {
-    console.log('id', id);
     if (inView) {
       updateUrlWithPostID(id, urlString);
     } else if (index === 0 && entry && entry.boundingClientRect.top >= 0) {
@@ -101,212 +101,274 @@ export default function InitialFeeds({
     }
   };
 
+  const handleOnFeedsUpdate = ({ result, type }) => {
+    setFeedsPosts((prevPosts) => [...prevPosts, ...result]);
+
+    setTrackIfRetrievedFromDB((prevState) => {
+      return {
+        ...prevState,
+        [type]: true,
+      };
+    });
+  };
+
+  const handleOnFeedsFromIDB = ({ type, IDBdata }) => {
+    const result = IDBdata.filter((idb) => idb.type === type);
+    const currentLanguage = Cookies.get('language');
+
+    return result[0].records[currentLanguage];
+  };
+
+  const handleOnFeedsError = async ({ errType }) => {
+    const IDBdata = await db.responseDataForOfflineAccess.toArray();
+    if (!IDBdata.length) return;
+    switch (errType) {
+      case 'commonFeedsError': {
+        const feedType = 'commonFeeds';
+        if (trackIfRetrievedFromDB[feedType]) return;
+
+        const result = handleOnFeedsFromIDB({ type: feedType, IDBdata });
+        handleOnFeedsUpdate({ result, type: feedType });
+        break;
+      }
+      //future improvmeents
+      /* case 'genreFeedsError': {
+        const feedType = 'genreFeeds';
+        if (trackIfRetrievedFromDB[feedType]) return;
+        const result = handleOnFeedsFromIDB({ type: feedType, IDBdata });
+        handleOnFeedsUpdate({ result, type: feedType });
+        break;
+      } */
+      default: {
+        console.log('default ---');
+      }
+    }
+  };
+
+  const handleOnIDBCheck = async ({ feedType, feedsToAdd }) => {
+    const isRecordPresent = await db.responseDataForOfflineAccess
+      .where('type')
+      .equals(feedType)
+      .first(); // Get the first (and ideally only) record
+    const currentLanguage = Cookies.get('language');
+    const insertObject = {
+      type: feedType,
+      records: {
+        [currentLanguage]: feedsToAdd,
+      },
+    };
+    if (isRecordPresent) {
+      let isCurrentLanguageRecordPresent =
+        isRecordPresent?.records[currentLanguage];
+      if (isCurrentLanguageRecordPresent) {
+        if (isCurrentLanguageRecordPresent.length > 40) {
+          isCurrentLanguageRecordPresent.splice(0, 20);
+        }
+        const currentRecords = [
+          ...isCurrentLanguageRecordPresent,
+          ...feedsToAdd,
+        ];
+        const uniqueRecords = Array.from(
+          new Map(currentRecords.map((item) => [item.id, item])).values()
+        );
+        insertObject['records'] = {
+          ...isRecordPresent['records'],
+          [currentLanguage]: uniqueRecords,
+        };
+
+        await db.responseDataForOfflineAccess['put'](insertObject);
+
+        return;
+      }
+      insertObject['records'] = {
+        ...isRecordPresent['records'],
+        [currentLanguage]: feedsToAdd,
+      };
+      await db.responseDataForOfflineAccess['put'](insertObject);
+      return;
+    }
+    await db.responseDataForOfflineAccess['add'](insertObject);
+  };
+
   useEffect(() => {
     (async () => {
+      let isCancelled = false;
+
       if (inView) {
         let feeds;
 
         try {
-          if (isFromGenre) {
+          if (isFromSaved) {
+            feeds = await userService.getUserProfileSavedCards({
+              requestBody: {
+                user_id: commonUserId,
+                timestamp: lastTimeStamp,
+              },
+            });
+          } else if (isFromTrending) {
+            feeds = await feedsServices.getTrendingFeeds({
+              requestBody: {
+                lang: lang || 'en',
+                page: nextPage,
+                last_id: lastId,
+                user_id: commonUserId,
+              },
+            });
+          } else if (isFromGenre) {
             feeds = await genreService.getFeedsOnGenre({
               requestBody: {
-                lang: lang,
+                lang: lang || 'en',
                 page: nextPage,
                 genre_id: genreId,
                 last_id: lastId,
               },
             });
           } else if (isFromUserProf) {
-            console.log('getting inside it', commonUserId);
             feeds = await userService.getCurrentUserPosts({
               requestBody: {
-                user_id: commonUserId,
+                user_id: userCommonId,
                 page: nextPage - 1,
               },
             });
           } else {
             feeds = await feedsServices.getFeeds({
               requestBody: {
-                lang: userPrefferedLangFromCookies,
+                lang: lang || 'en',
                 page: nextPage,
                 last_id: lastId,
                 user_id: commonUserId,
               },
             });
+            if (!feeds) {
+              throw new Error('commonFeedsError');
+            }
+            handleOnIDBCheck({ feedType: 'commonFeeds', feedsToAdd: feeds });
           }
-          setLastId(feeds[feeds.length - 1]?.id);
-          setFeedsPosts((prevFeedsPosts) => [...prevFeedsPosts, ...feeds]);
-          setNextPage((prevPage) => prevPage + 1);
+          if (!isCancelled) {
+            setFeedsPosts((prevFeeds) => [...prevFeeds, ...feeds]);
+            setLastId(feeds[feeds.length - 1]?.last_id);
+            setNextPage((prevPage) => prevPage + 1);
+          }
         } catch (err) {
-          console.log('caught error');
-          return router.replace('/');
+          handleOnFeedsError({ errType: err.message });
         }
       }
+      return () => {
+        isCancelled = true;
+      };
     })();
-  }, [
-    inView,
-    commonUserId,
-    genreId,
-    ,
-    isFromGenre,
-    isFromUserProf,
-    lang,
-    lastId,
-    nextPage,
-    router,
-    userPrefferedLangFromCookies,
-  ]);
+  }, [inView]);
 
   const handleOnShare = useCallback(
-    ({ postId, urlString, postImage, newsTitle }) => {
-      toggleBackdropStatus();
+    ({ postId, urlString, postImage, newsTitle, newsLanguage }) => {
+      if (!checkConnectionAndNotify(notify)) return;
 
-      setPostDetailsOnShare({ postId, urlString, postImage, newsTitle });
+      toggleBackdropStatus({ boolVal: true });
+
+      setPostDetailsOnShare({
+        postId,
+        urlString,
+        postImage,
+        newsTitle,
+        newsLanguage,
+      });
     },
-    [toggleBackdropStatus]
+    []
   );
 
   return (
-    <div style={{ maxWidth: '440px' }}>
-      {/*  <DynamicHead
-        title={'different type'}
-        description={'descriptiont o enghance the '}
-        imageUrl={''}
-      /> */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1em',
-          height: 'auto',
-          position: 'relative',
-          padding: '1em',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
-            gap: '1em',
-            overflowX: 'hidden',
-            position: 'relative',
-          }}
-        >
-          {feedsPosts.map(
-            (
-              {
-                id,
-                image_link,
-                news_title,
-                user_image,
-                user_name,
-                share_image_link,
-                url_string,
-                secure_user_id,
-                view_count,
-                like_count,
-                comment_count,
-                share_count,
-                download_count,
-                save_count,
-                news_language,
-                user: { userlike, usershare, usersave },
-              },
-              index
-            ) => {
-              console.log('newalnga', news_language);
-              if (isFromUserProf) {
-                return (
-                  <>
+    <>
+      <div className="flex flex-col items-center w-[100%]  gap-[1em] relative">
+        {feedsPosts.map(
+          (
+            {
+              id,
+              image_link,
+              news_title,
+              user_image,
+              user_name,
+              share_image_link,
+              url_string,
+              secure_user_id,
+              view_count,
+              like_count,
+              channel_id,
+              comment_count,
+              share_count,
+              download_count,
+              save_count,
+              news_language,
+              user: { userlike, usershare, usersave, userfollow },
+            },
+            index
+          ) => {
+            if (index > 0 && id == currentPostId && isFromUserProf) return null;
+            let feedPost = (ref) => (
+              <Feed
+                index={index}
+                id={id}
+                ref={ref ?? null}
+                imageLink={image_link}
+                userImage={user_image}
+                userName={user_name}
+                shareImageLink={share_image_link}
+                newsTitle={news_title}
+                handleOnShare={handleOnShare}
+                urlString={url_string}
+                secureUserId={secure_user_id}
+                viewCount={view_count}
+                likeCount={like_count}
+                commentCount={comment_count}
+                shareCount={share_count}
+                downloadCount={download_count}
+                saveCount={save_count}
+                newsLanguage={news_language}
+                postIdRef={postIdRef}
+                userLike={userlike}
+                userShare={usershare}
+                userSave={usersave}
+                userFollow={userfollow}
+                channelId={channel_id}
+              />
+            );
+            if (isFromUserProf || isFromSaved) {
+              return (
+                <React.Fragment key={id}>
+                  {index !== 0 && index % WIDGETS_INTERVALS === 0 && (
+                    <WidgetTemplates lang={lang} />
+                  )}
+                  {feedPost()}
+                </React.Fragment>
+              );
+            }
+            return (
+              <InView
+                onChange={(inview, entry) =>
+                  setInView(inview, entry, id, index, url_string)
+                }
+                threshold={0.8}
+                key={id}
+              >
+                {({ ref }) => (
+                  <React.Fragment>
                     {index !== 0 && index % WIDGETS_INTERVALS === 0 && (
                       <WidgetTemplates lang={lang} />
                     )}
-                    <Feed
-                      index={index}
-                      id={id}
-                      ref={ref}
-                      imageLink={image_link}
-                      userImage={user_image}
-                      userName={user_name}
-                      shareImageLink={share_image_link}
-                      newsTitle={news_title}
-                      handleOnShare={handleOnShare}
-                      urlString={url_string}
-                      secureUserId={secure_user_id}
-                      viewCount={view_count}
-                      likeCount={like_count}
-                      commentCount={comment_count}
-                      shareCount={share_count}
-                      downloadCount={download_count}
-                      saveCount={save_count}
-                      newsLanguage={news_language}
-                      postIdRef={postIdRef}
-                      userLike={userlike}
-                      userShare={usershare}
-                      userSave={usersave}
-                    />
-                  </>
-                );
-              }
-              return (
-                <InView
-                  onChange={(inview, entry) =>
-                    setInView(inview, entry, id, index, url_string)
-                  }
-                  threshold={0.8}
-                  key={id}
-                >
-                  {({ ref }) => (
-                    <>
-                      {index !== 0 && index % WIDGETS_INTERVALS === 0 && (
-                        <WidgetTemplates lang={lang} />
-                      )}
-                      <Feed
-                        index={index}
-                        id={id}
-                        ref={ref}
-                        imageLink={image_link}
-                        userImage={user_image}
-                        userName={user_name}
-                        shareImageLink={share_image_link}
-                        newsTitle={news_title}
-                        handleOnShare={handleOnShare}
-                        secureUserId={secure_user_id}
-                        viewCount={view_count}
-                        likeCount={like_count}
-                        commentCount={comment_count}
-                        shareCount={share_count}
-                        downloadCount={download_count}
-                        saveCount={save_count}
-                        newsLanguage={news_language}
-                        urlString={url_string}
-                        postIdRef={postIdRef}
-                        userLike={userlike}
-                        userShare={usershare}
-                        userSave={usersave}
-                      />
-                    </>
-                  )}
-                </InView>
-              );
-            }
-          )}
-          <div
-            ref={ref}
-            style={{
-              height: '100px',
-              background: 'tranparent',
-              position: 'absolute',
-              bottom: '30%',
-            }}
-          ></div>
-        </div>
+                    {feedPost(ref)}
+                  </React.Fragment>
+                )}
+              </InView>
+            );
+          }
+        )}
+        <div
+          ref={ref}
+          className="h-[100px] w-[50px] bg-transparent absolute bottom-[30%]"
+        ></div>
       </div>
-      <Backdrop>
-        <ShareButtons postDetailsOnShare={postDetailsOnShare} />
-      </Backdrop>
-    </div>
+      <BackdropDynamicImport>
+        <ShareButtonsDynamicImport postDetailsOnShare={postDetailsOnShare} />
+      </BackdropDynamicImport>
+    </>
   );
 }

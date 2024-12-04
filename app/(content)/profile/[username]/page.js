@@ -1,15 +1,18 @@
+import { Fallback } from '@/components/Fallback';
 import UserPosts from '@/components/profile/UserPosts';
-import { revalidateTag } from 'next/cache';
-import React, { Suspense } from 'react';
+import React from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 export const dynamic = 'force-dynamic'; // Force the page to be dynamic
 
 async function page({ params }) {
   const { username } = params;
 
   return (
-    <div>
-      <UserPosts username={username} />
-    </div>
+    <ErrorBoundary FallbackComponent={Fallback}>
+      <div className="mb-[60px] relative">
+        <UserPosts username={username} />
+      </div>
+    </ErrorBoundary>
   );
 }
 

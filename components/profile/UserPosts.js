@@ -5,20 +5,20 @@ import { userService } from '@/services/userService';
 import { useUserCommonId } from '@/context/userCommonId';
 import useResource from '@/hooks/useResource';
 import Image from 'next/image';
+import Loader from '../Loader';
+
 function UserPosts({ username }) {
-  //const commonUserId = Cookies.get('commonUserId');
-  // const [userPosts, setUsersPosts] = useState([]);
   const { userCommonId } = useUserCommonId();
   const {
     data: userPosts,
     isLoading,
-    fetchData,
+    fetchData: getCurrentUserPosts,
     error,
-  } = useResource(userService.getCurrentUserPosts);
+  } = useResource(userService?.getCurrentUserPosts);
 
   useEffect(() => {
     (async () => {
-      await fetchData({
+      await getCurrentUserPosts({
         requestBody: {
           user_id: userCommonId,
           page: '1',
@@ -28,75 +28,39 @@ function UserPosts({ username }) {
   }, [userCommonId]);
 
   if (error) {
-    console.log('console.log', error);
+    throw new Error('Something went wrong !');
   }
 
-  if (isLoading) {
-    return <p>loading...</p>;
-  }
-
-  //console.log('userposgt', userPosts);
   if (userPosts?.length === 0) {
     return (
-      <div
-        style={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '2em 0',
-          }}
-        >
+      <div className="w-full flex flex-col items-center">
+        <div className="flex flex-col justify-center items-center py-8">
           <Image
-            src={
-              'https://demo3.greynium.com/hitzfeed/images/icons/telegram-icon-large.svg'
-            }
+            src="https://www.hitzfeed.com/trends/media/images/icons/telegram-icon-large.svg"
             width={80}
             height={80}
             alt="alternate"
           />
-          <p>
+          <p className="text-center">
             You will be able to post <br />
             to HitzFeed very soon..
           </p>
         </div>
-        <button
-          style={{
-            background: '#8500ff',
-            padding: '10px 20px',
-            borderRadius: '50px',
-            color: '#fff',
-            fontSize: '16px',
-            fontWeight: '500',
-            textAlign: 'center',
-            display: 'inline-block',
-            textTransform: 'capitalize',
-          }}
-        >
+        <button className="bg-[#8500ff] py-2.5 px-5 rounded-full text-white text-lg font-medium text-center inline-block capitalize">
           Check out the top <br />
           Trending and Latest Feeds
         </button>
       </div>
     );
   }
+
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr',
-        gridRowGap: '0.6em',
-        gridColumnGap: '0.6em',
-        position: 'relative',
-      }}
-    >
+    <div className="mb-[60px]">
+      {isLoading && (
+        <div className="relative top-[50px]">
+          <Loader />
+        </div>
+      )}
       {userPosts && (
         <UserPostsLoad
           initialUserPosts={userPosts}

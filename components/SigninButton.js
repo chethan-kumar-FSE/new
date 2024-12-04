@@ -2,31 +2,21 @@
 import React from 'react';
 import { signIn } from 'next-auth/react';
 import Image from 'next/image';
+
 function SigninButton() {
   return (
     <button
-      style={{
-        border: '1px solid #4385f5',
-        borderRadius: '10px',
-        height: '50px',
-        position: 'relative',
-        background: '#4385f5',
-        width: '300px',
-        cursor: 'pointer',
-        overflow: 'hidden',
-      }}
+      className="border border-[#4385f5] rounded-lg h-12 w-72 relative bg-[#4385f5] cursor-pointer overflow-hidden flex items-center justify-center"
       onClick={() => signIn('google')}
     >
       <Image
-        src="https://demo3.greynium.com/hitzfeed/images/google-logo.png"
+        src="https://www.hitzfeed.com/trends/media/flashcard/google-logo.png"
         width={50}
         height={50}
         alt="Google"
-        style={{ position: 'absolute', left: '0px', top: '0px' }}
+        className="absolute left-0 top-0"
       />
-      <span style={{ fontSize: '16px', color: '#bdc1c6' }}>
-        Sign in with Google
-      </span>
+      <span className="text-sm text-[#bdc1c6] ml-14">Sign in with Google</span>
     </button>
   );
 }

@@ -1,7 +1,7 @@
-import React from 'react';
+import { notFound } from 'next/navigation';
 
 function page() {
-  return <div style={{ color: 'white', fontSize: '30px' }}>comment page</div>;
+  return notFound();
 }
 
 export default page;

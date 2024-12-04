@@ -1,3 +1,4 @@
+import FallbackImage from '@/components/FallbackImage';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -5,23 +6,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 function Template2({ genreList, lang }) {
   return (
-    <nav
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        gap: '1em',
-        maxWidth: '440px',
-        overflowX: 'auto',
-        overflowY: 'hidden',
-        scrollbarWidth: 'none', // For Firefox
-        msOverflowStyle: 'none', // For Internet Explorer and Edge
-        paddingLeft: '1.5em',
-      }}
-    >
+    <nav className="flex flex-row gap-4  overflow-x-auto overflow-y-hidden no-scrollbar">
       {genreList.map(({ url_slug, id, genre_name }, index) => {
-        const href = lang
-          ? `/${lang}/${url_slug}-c${id}`
-          : `/${url_slug}-c${id}`;
+        const href =
+          lang && lang !== 'en'
+            ? `/${lang}/${url_slug}-c${id}`
+            : `/${url_slug}-c${id}`;
         return (
           <Box
             key={uuidv4()}
@@ -44,26 +34,16 @@ const Box = ({ urlSlug, genre, href, index }) => {
   return (
     <>
       <Link href={href}>
-        <div style={{ width: '120px', height: '160px', position: 'relative' }}>
-          <Image
-            style={{ width: '100%', height: '100%' }}
-            src={`https://www.hitzfeed.com/trends/media/images/category/250x250/${urlSlug}_1.jpg`}
+        <div className="relative w-[120px] h-[160px] ">
+          <FallbackImage
+            sr={`https://www.hitzfeed.com/trends/media/images/category/250x250/${urlSlug}_1.jpg`}
             alt="alternate"
+            className={' rounded-[0.5em] w-[120px] h-[160px]'}
           />
           <p
-            style={{
-              background: '#fff',
-              borderRadius: '20px',
-              padding: '2px 15px',
-              fontSize: '14px',
-              color: '#000',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              position: 'absolute',
-              minWidth: '120px',
-              top: isEven ? '10%' : '80%',
-              left: isEven ? '10%' : '-10%',
-            }}
+            className={`absolute bg-white rounded-full py-0.5 px-3 text-xs text-black font-bold uppercase ${
+              isEven ? 'top-[10%] left-[10%]' : 'top-[80%] left-[-10%]'
+            }`}
           >
             {genre}
           </p>

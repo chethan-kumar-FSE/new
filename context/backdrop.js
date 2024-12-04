@@ -13,13 +13,16 @@ const BackdropContext = createContext();
 // Create a custom hook to use the context
 export const useBackdropContext = () => useContext(BackdropContext);
 
-// Create a provider component
+// Create a provider componentss
 export const BackdropProvider = ({ children }) => {
   const [isBackdropOpen, setIsBackdropOpen] = useState(false); // Default theme
 
-  const toggleBackdropStatus = useCallback(() => {
-    setIsBackdropOpen((prevState) => !prevState);
-  }, []);
+  const toggleBackdropStatus = useCallback(
+    ({ boolVal }) => {
+      setIsBackdropOpen(boolVal);
+    },
+    [isBackdropOpen]
+  );
 
   const data = useMemo(
     () => ({ isBackdropOpen, toggleBackdropStatus }),

@@ -1,26 +1,23 @@
 import GoogleProvider from 'next-auth/providers/google';
-
+import { SESSION_MAX_AGE, JWT_MAX_AGE } from '@/utils/constant';
 export const config = {
   providers: [
     GoogleProvider({
-      clientId:
-        '1037827490511-m2je1b3d59ik9l4s5jacr9evu6uo8154.apps.googleusercontent.com',
-      clientSecret: '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',
+      clientId: process.env.NEXT_GOOGLE_AUTH_CLIENTID,
+      clientSecret: process.env.NEXT_GOOGLE_AUTH_CLIENTSECRET,
     }),
   ],
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // Set session max age (in seconds), e.g., 30 days
+    maxAge: SESSION_MAX_AGE, // Set session max age (in seconds), e.g., 30 days
   },
   secret: process.env.NEXTAUTH_SECRET, // Make sure this matches your .env variable
   jwt: {
     secret: process.env.NEXTAUTH_SECRET, // Ensure consistency with your secret
-    maxAge: 30 * 24 * 60 * 60, // Set JWT max age (in seconds), e.g., 30 days
+    maxAge: JWT_MAX_AGE, // Set JWT max age (in seconds), e.g., 30 days
   },
   callbacks: {
     async jwt({ token, account, profile }) {
-      console.log('account', account);
-      console.log('profile', profile);
       // If account is available, it means this is the first time the user is signing in
       if (account?.provider === 'google') {
         token.sub = profile?.sub; // Add the OAuth ID (`sub`)
@@ -38,7 +35,6 @@ export const config = {
         session.user.lastName = token.lastName; // Last name
       }
 
-      console.log('session-inautj', session.user);
       return session; // Always return the modified session object
     },
   },

@@ -1,35 +1,15 @@
 'use client';
-import Image from 'next/image';
 import React from 'react';
 
 function NoCommentsMessage() {
   return (
-    <div
-      style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%,-50%)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1em',
-        alignItems: 'center',
-      }}
-    >
-      <Image
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col gap-4 items-center">
+      <img
         src="https://www.hitzfeed.com/trends/media/flashcard/no-comments.svg"
         alt="smething"
-        style={{ width: '90px', height: '90px' }}
+        className="w-[90px] h-[90px]"
       />
-      <p
-        style={{
-          color: '#d2d5d9',
-          fontSize: '20px',
-          textAlign: 'center',
-          padding: '5px',
-          fontWeight: 'bold',
-        }}
-      >
+      <p className="text-[#d2d5d9] text-[20px] text-center p-[5px] font-bold">
         Be the first to comment
       </p>
     </div>

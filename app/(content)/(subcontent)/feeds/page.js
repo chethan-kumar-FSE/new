@@ -5,20 +5,24 @@ import { genreService } from '@/services/genreService';
 import Template5 from '@/components/feeds/widgetTemplates/template-5/Template5';
 import { shuffleArray } from '@/utils/shuffleArray';
 import FeedsHeader from '@/components/feeds/feedsheader/FeedsHeader';
-import Head from 'next/head';
 import LanguageSelection from '@/components/LanguageSelection';
 
-export default async function Feeds({ lang }) {
-  const cookieStore = cookies();
-  const commonUserId = cookieStore.get('commonUserId')?.value;
-  const userPreferredLanguage = cookieStore.get('language')?.value;
+import PostsLayout from '@/layouts/PostsLayout';
 
-  if (!userPreferredLanguage) {
+export default function Feeds() {
+  const cookieStore = cookies();
+
+  const commonUserId = cookieStore.get('commonUserId')?.value;
+  const language = cookieStore.get('language')?.value;
+
+  //check if language is present and show language selection pop us for the user to set in cookies
+  if (!language) {
+    //if language is not present language selection pop up , isFromHome is boolean value for conditional styling
     return <LanguageSelection isFromHome={true} />;
   }
 
   const getFeedsRequestObject = {
-    lang: userPreferredLanguage,
+    lang: language,
     page: '1',
     last_id: '',
   };
@@ -27,27 +31,36 @@ export default async function Feeds({ lang }) {
   if (commonUserId) {
     getFeedsRequestObject['user_id'] = commonUserId;
   }
+  return execute();
 
-  const [initialFeedsOnLoad, genreList] = await Promise.all([
-    feedsServices.getFeeds({
-      requestBody: getFeedsRequestObject,
-    }),
-    genreService.getGenre({
-      requestBody: { lang: userPreferredLanguage },
-    }),
-  ]);
+  async function execute() {
+    try {
+      const [initialFeedsOnLoad, genreList] = await Promise.all([
+        feedsServices.getFeeds({
+          requestBody: getFeedsRequestObject,
+        }),
+        genreService.getGenre({
+          requestBody: { lang: language || 'en' },
+        }),
+      ]);
 
-  const shuffledGenreList = shuffleArray(genreList);
+      let shuffledGenreList = shuffleArray(genreList);
 
-  return (
-    <div style={{ width: '100%' }}>
-      <div style={{ maxWidth: '440px', margin: '1em auto' }}>
-        <FeedsHeader />
-        <Template5 genreList={shuffledGenreList} lang={lang} />
-        <InitialFeeds initialFeedsOnLoad={initialFeedsOnLoad} lang={lang} />
-      </div>
-    </div>
-  );
+      return (
+        <PostsLayout>
+          <div className="flex flex-col gap-4">
+            <FeedsHeader />
+            <Template5 genreList={shuffledGenreList} lang={language} />
+
+            <InitialFeeds
+              initialFeedsOnLoad={initialFeedsOnLoad}
+              lang={language}
+            />
+          </div>
+        </PostsLayout>
+      );
+    } catch (err) {
+      throw new Error('');
+    }
+  }
 }
-
-// utils/generateMetadata.js

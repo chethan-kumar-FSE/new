@@ -1,97 +1,56 @@
 'use client';
 import { useReplyingUser } from '@/context/replyingUser';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
-import React, { useRef } from 'react';
+import React from 'react';
+import FallbackImage from '../FallbackImage';
 
 function CommentInput({ handleOnCommentSubmit, inputRef }) {
   const { data: session } = useSession();
   const { replyingTo, handleOnSetReplyingTo } = useReplyingUser();
 
-  ///const isReplying = true;
-
   return (
-    <div
-      style={{
-        width: '100%',
-        padding: '1em 1em',
-        position: 'fixed',
-        bottom: '65px',
-        background: 'black',
-      }}
-    >
-      {replyingTo.username && (
-        <div
-          style={{
-            color: 'white',
-            fontSize: '12px',
-
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '1em',
-            width: '100%',
-          }}
-        >
-          <p>
-            Replying to{' '}
-            <span
-              style={{
-                display: 'inline-block',
-                background: 'red',
-                fontWeight: 'bold',
-                color: 'white',
-                padding: '0.2em',
-                borderRadius: '0.4em',
-              }}
-            >
-              {replyingTo.username}
-            </span>
-          </p>
-          <button
-            onClick={() =>
-              handleOnSetReplyingTo({ mainCommentId: null, username: null })
-            }
-          >
-            clear
-          </button>
+    <div className="fixed bottom-[61px] bg-black w-[100%]">
+      {replyingTo?.username && (
+        <div className="text-[#fff] text-[12px] flex justify-center gap-[1em] w-[100%]">
+          <div class="flex items-center justify-center mb-2.5">
+            <div class="text-white text-lg font-normal">
+              replying to{' '}
+              <span class="bg-red-500 px-1.5 rounded font-semibold mx-1">
+                {' '}
+                {replyingTo?.username}
+              </span>
+            </div>
+            <div class="ml-2.5">
+              <button
+                onClick={() =>
+                  handleOnSetReplyingTo({ mainCommentId: null, username: null })
+                }
+                class="text-white text-sm no-underline"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
         </div>
       )}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'auto 1fr auto',
-          alignItems: 'center',
-          gap: '0.5em',
-          padding: '0.5em',
-        }}
-      >
-        <Image
-          src={session?.user?.image}
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 p-2">
+        <FallbackImage
+          sr={session?.user?.image}
+          userFallback={true}
           alt="User"
-          width={35}
-          height={35}
-          style={{ borderRadius: '50%' }}
+          className={'w-[35px] h-[35px] rounded-[50%]'}
         />
         <input
           type="text"
           placeholder="Enter a comment"
           ref={inputRef}
-          style={{
-            width: '100%',
-            padding: '0.5em',
-            fontSize: '1em',
-            border: '1px solid #ccc',
-            borderRadius: '5px',
-            outline: 'none',
-          }}
+          className="w-full p-2 text-base border border-gray-300 rounded-md outline-none"
         />
-        <Image
+        <img
           src="https://www.hitzfeed.com/trends/media/flashcard/send-icon-1.svg"
-          width={30}
-          height={30}
           alt="Send"
-          style={{ cursor: 'pointer' }}
           onClick={() => handleOnCommentSubmit(inputRef?.current?.value)}
+          className="w-[30px] h-[30px] cursor-pointer"
         />
       </div>
     </div>

@@ -1,36 +1,44 @@
-import Image from 'next/image';
+'use client';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { CiGrid42 } from 'react-icons/ci';
+import { MdVideoLibrary } from 'react-icons/md';
+import { GoStarFill } from 'react-icons/go';
 
 function UserPostsNav({ userName }) {
+  //const router = useRouter();
+  const pathname = usePathname();
+  console.log('currentpath', pathname);
+
   const items = [
     {
-      src: 'https://demo3.greynium.com/hitzfeed/images/icons/grid-icon.svg',
+      src: <CiGrid42 size={30} />,
       navigateTo: `/profile/${userName}`,
     },
     {
-      src: 'https://demo3.greynium.com/hitzfeed/images/icons/videos-icon.svg',
+      src: <MdVideoLibrary size={28} />,
       navigateTo: `/profile/${userName}/videos`,
     },
     {
-      src: 'https://demo3.greynium.com/hitzfeed/images/icons/star-icon.svg',
+      src: <GoStarFill size={28} />,
       navigateTo: `/profile/${userName}/saved`,
     },
   ];
+
   return (
-    <nav style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr' }}>
-      {items.map((item) => {
-        return (
-          <Link
-            key={uuidv4()}
-            href={item.navigateTo}
-            style={{ textAlign: 'center' }}
-          >
-            <Image src={item.src} width={24} height={24} alt="something" />
-          </Link>
-        );
-      })}
+    <nav className="grid grid-cols-3 gap-4">
+      {items.map((item, index) => (
+        <Link
+          key={index}
+          href={item.navigateTo}
+          className={` font-bold text-center flex justify-center items-center  rounded-md transition-colors duration-200 ${
+            pathname === item.navigateTo ? ' text-[#fff]' : ' text-zinc-400	'
+          }`}
+        >
+          <span>{item.src}</span>
+        </Link>
+      ))}
     </nav>
   );
 }

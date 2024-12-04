@@ -6,6 +6,9 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { v4 as uuidv4 } from 'uuid';
+import FallbackImage from '../FallbackImage';
+import useResource from '@/hooks/useResource';
+import Loader from '../Loader';
 
 function UserPostsLoad({
   initialUserPosts = [],
@@ -17,46 +20,60 @@ function UserPostsLoad({
 
   const [nextPage, setNextPage] = useState(2);
   const { ref, inView } = useInView({
-    threshold: 0.1,
+    threshold: 0.7,
   });
+
+  const {
+    fetchData: getCurrentUserPosts,
+    isLoading,
+    error,
+  } = useResource(userService?.getCurrentUserPosts);
+
   useEffect(() => {
     (async () => {
       if (inView) {
-        const currentUserPosts = await userService.getCurrentUserPosts({
+        const currentUserPosts = await getCurrentUserPosts({
           requestBody: {
             user_id: commonUserId,
             page: nextPage,
           },
         });
+
+        console.log('current userpsots', currentUserPosts);
         setUserPosts((prevPosts) => [...prevPosts, ...currentUserPosts]);
         setNextPage((page) => page + 1);
       }
     })();
-  }, [inView, nextPage, commonUserId]);
+  }, [inView]);
+
+  if (error) {
+    console.log('Error:', error);
+    throw new Error('Something went wrong !');
+  }
 
   return (
     <>
-      {userPosts?.map(({ image_link, id }) => {
-        return (
-          <Link key={uuidv4()} href={`/profile/${username}/${id}`}>
-            <Image
-              src={`https://imagesvs.oneindia.com/webp/trends${image_link}`}
-              style={{ width: '100%', height: '100px' }}
-              alt=""
-            />
+      <div className="grid grid-cols-3 gap-2">
+        {userPosts?.map(({ image_link, id }) => (
+          <Link key={id} href={`/profile/${username}/${id}`}>
+            <div className="relative">
+              <FallbackImage
+                sr={`https://imagesvs.oneindia.com/webp/trends${image_link}`}
+                className="w-full h-[100px] object-cover rounded-lg"
+                alt="User Post"
+              />
+            </div>
           </Link>
-        );
-      })}
-
+        ))}
+      </div>
+      {isLoading && (
+        <div className="relative top-[22px]">
+          <Loader />
+        </div>
+      )}
       <div
         ref={ref}
-        style={{
-          height: '100px',
-          background: 'transparent',
-          width: '10px',
-          position: 'absolute',
-          bottom: '30%',
-        }}
+        className="h-[100px] w-[50px] bg-transparent absolute bottom-[30%]"
       ></div>
     </>
   );

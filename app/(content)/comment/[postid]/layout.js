@@ -1,12 +1,13 @@
+import { Fallback } from '@/components/Fallback';
 import { ReplyProvider } from '@/context/replyingUser';
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-
+import FullScreenLayout from '@/layouts/FullScreenLayout';
+import { ErrorBoundary } from 'react-error-boundary';
 export default async function CommentLayout({ children }) {
-  const session = await getServerSession();
-
-  if (!session && !session?.user) {
-    return redirect('/');
-  }
-  return <ReplyProvider>{children}</ReplyProvider>;
+  return (
+    <ReplyProvider>
+      <ErrorBoundary FallbackComponent={Fallback}>
+        <FullScreenLayout>{children}</FullScreenLayout>
+      </ErrorBoundary>
+    </ReplyProvider>
+  );
 }

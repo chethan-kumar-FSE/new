@@ -12,21 +12,7 @@ function Comments({
 }) {
   return (
     <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1em',
-        maxHeight: '400px', // Specify a maxHeight or height here
-        overflowY: 'auto',
-        scrollbarWidth: 'none', // For Firefox
-        msOverflowStyle: 'none', // For Internet Explorer and Edge
-
-        margin: '80px 0px 140px 0px',
-        padding: '0em 1em',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1em',
-      }}
+      className="flex flex-col gap-4 max-h-[450px] overflow-y-auto no-scrollbar mx-0 my-20 py-4 px-4"
       ref={containerRef}
     >
       {comment.map(
@@ -40,10 +26,7 @@ function Comments({
           replies,
         }) => {
           return (
-            <div
-              key={uuidv4()}
-              style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}
-            >
+            <div key={comment_id} className="flex flex-col gap-[1em]">
               <Comment
                 timestamp={comment_timestamp}
                 userName={username}
@@ -59,14 +42,7 @@ function Comments({
               />
 
               {replies && (
-                <div
-                  style={{
-                    marginLeft: '2em',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1em',
-                  }}
-                >
+                <div className="ml-[2em] flex flex-col gap-[1em]">
                   {replies?.map(
                     ({
                       sub_comment_id,
@@ -78,7 +54,7 @@ function Comments({
                     }) => {
                       return (
                         <Comment
-                          key={uuidv4()}
+                          key={sub_comment_id}
                           timestamp={sub_comment_timestamp}
                           userName={username}
                           comment={sub_comment_name}

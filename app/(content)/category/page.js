@@ -1,81 +1,78 @@
 import CategoryHeader from '@/components/category/CategoryHeader';
 import CategoryIntro from '@/components/category/CategoryIntro';
+import FallbackImage from '@/components/FallbackImage';
 import InitialFeeds from '@/components/feeds/feeds';
+import LanguageSelection from '@/components/LanguageSelection';
 import { genreService } from '@/services/genreService';
 import { cookies } from 'next/headers';
-import Image from 'next/image';
-import { redirect } from 'next/navigation';
 import React from 'react';
+import PostsLayout from '@/layouts/PostsLayout';
 
-async function Category({ params, lang = 'en' }) {
-  const { id } = params;
+async function Category({ params }) {
+  const { categoryId } = params;
   const cookieStore = cookies();
+  const language = cookieStore.get('language')?.value;
+
+  //if language is not present language selection pop up , isFromHome is boolean value for conditional styling
+  if (!language) {
+    return <LanguageSelection isFromHome={true} />;
+  }
+
   const commonUserId = cookieStore.get('commonUserId')?.value;
 
-  const data = {
-    feedsOnGenre: [],
-    genreDataOnCatId: '',
-  };
   const feedsOnGenreRequestBody = {
-    lang: lang,
+    lang: language,
     page: '1',
-    genre_id: id,
+    genre_id: categoryId,
   };
 
+  //add commonUserId to request body if only present in cookies
   if (commonUserId) {
     feedsOnGenreRequestBody['user_id'] = commonUserId;
   }
+
   try {
+    //fetch feeds based on genre and genre data on categoryId : categoryId
     const [feedsOnGenre, genreDataOnCatId] = await Promise.all([
       genreService.getFeedsOnGenre({
         requestBody: feedsOnGenreRequestBody,
       }),
       genreService.getGenreById({
-        requestBody: { lang: lang, genre_id: id },
+        requestBody: { lang: language, genre_id: categoryId },
       }),
     ]);
-    data['feedsOnGenre'] = feedsOnGenre;
+
     const { url_slug, genre_name, genre_intro } = genreDataOnCatId[0];
-    data['genreDataOnCatId'] = { url_slug, genre_name, genre_intro };
-  } catch (err) {
-    return redirect('/');
-  }
 
-  const feedsOnGenre = data['feedsOnGenre'];
-  const { url_slug, genre_name, genre_intro } = data['genreDataOnCatId'];
-  return (
-    <div style={{ width: '100%' }}>
-      <div
-        style={{
-          color: 'white',
-          maxWidth: '440px',
-          margin: '1em auto',
-        }}
-      >
-        <CategoryHeader genreName={genre_name} />
-        <div style={{ marginBottom: '1em', padding: '1em' }}>
-          <div style={{ position: 'relative' }}>
-            <Image
-              src={`https://www.hitzfeed.com/trends/media/images/category/${url_slug}_2.jpg`}
-              alt="image"
-              style={{ width: '100%', height: '200px' }}
-            />
+    return (
+      <PostsLayout className={'text-[#fff]'}>
+        <div className="flex flex-col gap-4">
+          <CategoryHeader genreName={genre_name} />
 
-            <p style={{ position: 'absolute', bottom: '10px', left: '10px' }}>
-              {genre_name}
-            </p>
+          <div className="flex flex-col gap-[0.8em]">
+            <div className="relative">
+              <FallbackImage
+                sr={`https://www.hitzfeed.com/trends/media/images/category/${url_slug}_2.jpg`}
+                alt="image"
+                className={'w-[100%] h-[200px] rounded-[0.5em]'}
+              />
+
+              <p className="absolute bottom-[10px] left-[10px]">{genre_name}</p>
+            </div>
+            <CategoryIntro genreIntro={genre_intro} />
           </div>
-          <CategoryIntro genreIntro={genre_intro} />
+          <InitialFeeds
+            initialFeedsOnLoad={feedsOnGenre}
+            isFromGenre
+            genreId={categoryId}
+            lang={language}
+          />
         </div>
-        <InitialFeeds
-          initialFeedsOnLoad={feedsOnGenre}
-          isFromGenre
-          genreId={id}
-          lang={lang}
-        />
-      </div>
-    </div>
-  );
+      </PostsLayout>
+    );
+  } catch (err) {
+    throw new Error('');
+  }
 }
 
 export default Category;

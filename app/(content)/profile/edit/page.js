@@ -13,6 +13,9 @@ import { useRouter } from 'next/navigation';
 import { notify } from '@/utils/Toast';
 import useResource from '@/hooks/useResource';
 import Image from 'next/image';
+import Loader from '@/components/Loader';
+import PostsLayout from '@/layouts/PostsLayout';
+import { CiSettings } from 'react-icons/ci';
 
 function EditProf() {
   const { data: session } = useSession();
@@ -21,8 +24,16 @@ function EditProf() {
   const [cities, setCities] = useState([]);
   const router = useRouter();
 
-  const { isLoading, error, fetchData } = useResource(submit);
-
+  const {
+    isLoading: isUpdating,
+    error: updationError,
+    fetchData: updateLoggedInUser,
+  } = useResource(submit);
+  const {
+    isLoading: isUserDetailsLoading,
+    error: loadUserDetailsError,
+    fetchData: loadUserDetails,
+  } = useResource(userService.getUserDetails);
   // const [, setSelectedOption] = useState(null);
   const {
     register,
@@ -53,14 +64,16 @@ function EditProf() {
 
   useEffect(() => {
     (async () => {
-      const userdetails = await userService.getUserDetails({
+      /*  const userdetails = await userService.getUserDetails({
+        requestBody: { user_id: Cookies.get('commonUserId') },
+      }); */
+
+      const userdetails = await loadUserDetails({
         requestBody: { user_id: Cookies.get('commonUserId') },
       });
-      console.log('userdetailsm', userdetails);
       // Reset the form with the fetched data
       const dob = userdetails?.dob?.split('-');
       const [year, month, date] = dob;
-      console.log('year', 'month', 'date', year, month, date);
       reset({
         firstName: userdetails?.first_name || '',
         lastName: userdetails?.last_name || '',
@@ -83,7 +96,6 @@ function EditProf() {
 
   const selectedCountry = watch('country'); // Watching country dropdown
   const selectedState = watch('state'); // Watching state dropdown
-  console.log('selectedState', selectedState, selectedCountry);
 
   useEffect(() => {
     (async () => {
@@ -100,25 +112,28 @@ function EditProf() {
 
   useEffect(() => {
     (async () => {
+      if (!selectedCountry?.value) return;
+
       const statesResp = await locationService.getStates({
         requestBody: {
           country_id: String(selectedCountry?.value),
         },
       });
-      console.log('state', statesResp);
       const mappedStates = statesResp?.map((state) => {
         return {
           value: state.id,
           label: state.name,
         };
       });
-      console.log('statesResp', mappedStates);
       setStates(mappedStates);
     })();
   }, [selectedCountry?.value]);
 
   useEffect(() => {
     (async () => {
+      if (!selectedState?.value) return;
+
+      console.log('Selected-city', selectedState?.value);
       const citiesResp = await locationService.getCities({
         requestBody: {
           state_id: String(selectedState?.value),
@@ -148,6 +163,7 @@ function EditProf() {
       padding: '0.6em 0em',
       boxShadow: 'none',
       margin: '0',
+      color: '#fff',
       '&:hover': {
         borderBottomColor: 'white', // Keep the white bottom border on hover
       },
@@ -156,6 +172,7 @@ function EditProf() {
       ...provided,
       padding: '0', // Set padding for the input field to 0
       margin: '0',
+      color: '#fff',
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
@@ -184,6 +201,10 @@ function EditProf() {
       ...provided,
       color: '#fff',
     }),
+    input: (provided) => ({
+      ...provided,
+      color: '#fff', // Set the text color in the input field while typing to white
+    }),
   };
 
   const days = Array.from({ length: 31 }, (_, i) => ({
@@ -195,237 +216,117 @@ function EditProf() {
     label: `${i + 1}`,
   })); // 1-12 for months
   const years = Array.from({ length: 100 }, (_, i) => {
-    const year = 2023 - i;
+    const year = new Date().getFullYear() - i;
     return { value: `${year}`, label: `${year}` };
   });
 
   const onSubmit = async (data) => {
-    await fetchData(data);
+    await updateLoggedInUser(data);
     // await submit(data);
     const userName = Cookies.get('username');
     notify({ message: 'Profile updated successfully' });
     return router.push(`/profile/${userName}`);
   };
 
-  if (isLoading) {
-    return (
-      <p
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%,-50%',
-          color: 'white',
-          fontSize: '20px',
-          fontWeight: 'bold',
-        }}
-      >
-        your profile is being updated
-      </p>
-    );
+  if (isUpdating || isUserDetailsLoading) {
+    return <Loader />;
   }
   return (
-    <div style={{ width: '100%', marginBottom: '4em', padding: '0 1em' }}>
-      <div
-        style={{ position: 'relative', margin: '1em auto', maxWidth: '440px' }}
-      >
-        <CommonHeader />
-        <Link
-          style={{
-            position: 'absolute',
-            display: 'block',
-            right: '0px',
-            top: '0px',
-          }}
-          href={'/setting'}
-        >
-          <Image
-            src="https://demo3.greynium.com/hitzfeed/images/icons/settings.svg"
-            width={30}
-            height={30}
-            alt="alternate"
-          />
+    <PostsLayout className={'mb-[70px]'}>
+      <div className="relative">
+        <CommonHeader shouldDisplay />
+        <Link className="absolute block right-0 top-3" href={'/setting'}>
+          <CiSettings className="text-[#fff]" size={28} />
         </Link>
       </div>
-      <div
-        style={{
-          maxWidth: '440px',
-          margin: '0 auto',
-          height: '220px',
-          background: "url('https://picsum.photos/200/300') center no-repeat",
-          backgroundSize: 'cover',
-          borderRadius: '8px',
-          position: 'relative',
-          padding: '1em',
-          color: 'white',
-        }}
-      >
-        <h1 style={{ textAlign: 'center', marginBottom: '1em' }}>My Profile</h1>
 
-        <div
-          style={{
-            width: '100px',
-            height: '100px',
-            borderRadius: '50%',
-            border: '1px solid white',
-            overflow: 'hidden',
-            position: 'relative',
-            margin: '0 auto',
-          }}
-        >
+      <div
+        className="mx-auto h-[220px] bg-cover bg-center rounded-lg relative p-4 text-white"
+        style={{ backgroundImage: "url('https://picsum.photos/200/300')" }}
+      >
+        <h1 className="text-center mb-4">My Profile</h1>
+
+        <div className="w-[100px] h-[100px] rounded-full border border-white overflow-hidden relative mx-auto">
           <input
             type="file"
             accept="image/*"
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              opacity: 0,
-              cursor: 'pointer',
-            }}
+            className="absolute w-full h-full opacity-0 cursor-pointer"
           />
           <Image
             src={session?.user?.image}
             alt="Profile"
-            style={{
-              objectFit: 'cover',
-            }}
+            className="object-cover"
             width={100}
             height={100}
           />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '0',
-              right: '0',
-              width: '30px',
-              height: '30px',
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <span style={{ color: 'white', fontSize: '18px' }}>cam</span>
+          <div className="absolute bottom-0 right-0 w-[30px] h-[30px] bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+            <span className="text-white text-[18px]">cam</span>
           </div>
         </div>
       </div>
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        style={{ maxWidth: '440px', margin: '1em auto', color: 'white' }}
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="my-4 text-white">
         {/* First Name */}
-        <div style={{ marginBottom: '1em' }}>
-          <label style={{ display: 'block' }}>First Name</label>
+        <div className="mb-4">
+          <label className="block">First Name</label>
           <input
             {...register('firstName', { required: true, minLength: 4 })}
             type="text"
             placeholder="Enter first name"
-            style={{
-              width: '100%',
-              border: 'none',
-              borderBottom: '1px solid #808080',
-              backgroundColor: 'transparent',
-              outline: 'none',
-              fontSize: '16px',
-              padding: '0.6em 0em',
-
-              color: '#fff',
-            }}
+            className="w-full border-b border-gray-500 bg-transparent text-white text-base py-2 focus:outline-none"
           />
           {errors.firstName && (
-            <span style={{ color: 'red' }}>First name is required</span>
+            <span className="text-red-500">First name is required</span>
           )}
         </div>
 
         {/* Last Name */}
-        <div style={{ marginBottom: '1em' }}>
-          <label style={{ display: 'block' }}>Last Name</label>
+        <div className="mb-4">
+          <label className="block">Last Name</label>
           <input
             {...register('lastName', { required: true })}
             type="text"
             placeholder="Enter last name"
-            style={{
-              width: '100%',
-              padding: '0.6em 0em',
-              border: 'none',
-              borderBottom: '1px solid #808080',
-              backgroundColor: 'transparent',
-              fontSize: '16px',
-              padding: '0.6em 0em',
-
-              color: '#fff',
-              outline: 'none',
-            }}
+            className="w-full border-b border-gray-500 bg-transparent text-white text-base py-2 focus:outline-none"
           />
           {errors.lastName && (
-            <span style={{ color: 'red' }}>Last name is required</span>
+            <span className="text-red-500">Last name is required</span>
           )}
         </div>
 
         {/* Email */}
-        <div style={{ marginBottom: '1em' }}>
-          <label style={{ display: 'block' }}>Email</label>
+        <div className="mb-4">
+          <label className="block">Email</label>
           <input
             {...register('email')}
             type="email"
             placeholder="Enter email"
-            style={{
-              width: '100%',
-              padding: '0.6em 0em',
-              border: 'none',
-              borderBottom: '1px solid #808080',
-              backgroundColor: 'transparent',
-              fontSize: '16px',
-              padding: '0.6em 0em',
-
-              color: '#fff',
-              outline: 'none',
-            }}
+            className="w-full border-b border-gray-500 bg-transparent text-white text-base py-2 focus:outline-none"
             disabled
           />
           {/* {errors.email && (
-            <span style={{ color: 'red' }}>Valid email is required</span>
-          )} */}
+      <span className="text-red-500">Valid email is required</span>
+    )} */}
         </div>
 
         {/* Mobile Number */}
-        <div style={{ marginBottom: '1em' }}>
-          <label style={{ display: 'block' }}>Mobile Number</label>
+        <div className="mb-4">
+          <label className="block">Mobile Number</label>
           <input
             {...register('mobile', { required: true, pattern: /^[0-9]{10}$/ })}
             type="tel"
             placeholder="Enter mobile number"
-            style={{
-              width: '100%',
-              padding: '0.6em 0em',
-              border: 'none',
-              borderBottom: '1px solid #808080',
-              backgroundColor: 'transparent',
-              fontSize: '16px',
-              padding: '0.6em 0em',
-
-              color: '#fff',
-              outline: 'none',
-            }}
+            className="w-full border-b border-gray-500 bg-transparent text-white text-base py-2 focus:outline-none"
           />
           {errors.mobile && (
-            <span style={{ color: 'red' }}>
+            <span className="text-red-500">
               Valid 10-digit mobile number is required
             </span>
           )}
         </div>
+
         {/* Date of Birth */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '4em',
-            justifyContent: 'space-between',
-            marginBottom: '1em',
-          }}
-        >
+        <div className="flex justify-between mb-4">
           <div>
             <label>Day</label>
             <Controller
@@ -444,11 +345,7 @@ function EditProf() {
               name="month"
               control={control}
               render={({ field }) => (
-                <Select
-                  {...field}
-                  styles={customStyles}
-                  options={months} // Showing numeric months (1-12)
-                />
+                <Select {...field} styles={customStyles} options={months} />
               )}
             />
           </div>
@@ -460,17 +357,17 @@ function EditProf() {
               name="year"
               control={control}
               render={({ field }) => (
-                <Select {...field} options={years} styles={customStyles} />
+                <Select {...field} styles={customStyles} options={years} />
               )}
             />
           </div>
         </div>
 
         {/* Gender (Radio Buttons) */}
-        <div style={{ marginBottom: '2em', display: 'flex', gap: '1em' }}>
+        <div className="mb-8 flex gap-4 items-center">
           <h4>Gender</h4>
-          <div style={{ display: 'flex', gap: '1em' }}>
-            <div style={{ display: 'flex', gap: '1em' }}>
+          <div className="flex gap-4">
+            <div className="flex gap-2 items-center">
               <Controller
                 name="gender"
                 control={control}
@@ -479,17 +376,14 @@ function EditProf() {
                     {...field}
                     type="radio"
                     value="male"
-                    checked={field.value === 1} // Checked by default
-                    onChange={() => {
-                      field.onChange(1); // Update form state
-                      //handleGenderChange('male'); // Call your change handler
-                    }}
+                    checked={field.value === 1}
+                    onChange={() => field.onChange(1)}
                   />
                 )}
               />
               <label>Male</label>
             </div>
-            <div style={{ display: 'flex', gap: '1em' }}>
+            <div className="flex gap-2 items-center">
               <Controller
                 name="gender"
                 control={control}
@@ -499,16 +393,13 @@ function EditProf() {
                     type="radio"
                     value="female"
                     checked={field.value === 2}
-                    onChange={() => {
-                      field.onChange(2); // Update form state
-                      //handleGenderChange('male'); // Call your change handler
-                    }}
+                    onChange={() => field.onChange(2)}
                   />
                 )}
               />
               <label>Female</label>
             </div>
-            <div style={{ display: 'flex', gap: '1em' }}>
+            <div className="flex gap-2 items-center">
               <Controller
                 name="gender"
                 control={control}
@@ -518,10 +409,7 @@ function EditProf() {
                     type="radio"
                     value="not-specified"
                     checked={field.value === 3}
-                    onChange={() => {
-                      field.onChange(3); // Update form state
-                      // handleGenderChange('male'); // Call your change handler
-                    }}
+                    onChange={() => field.onChange(3)}
                   />
                 )}
               />
@@ -529,31 +417,32 @@ function EditProf() {
             </div>
           </div>
           {errors.gender && (
-            <span style={{ color: 'red' }}>Gender is required</span>
+            <span className="text-red-500">Gender is required</span>
           )}
         </div>
 
-        <div style={{ marginBottom: '1em' }}>
+        {/* Country */}
+        <div className="mb-4">
           <label>Country</label>
           <Controller
             name="country"
             control={control}
-            defaultValue="" // Default value for the field
-            rules={{ required: 'Country is required' }} // Validation rules
+            defaultValue=""
+            rules={{ required: 'Country is required' }}
             render={({ field, fieldState }) => (
               <>
                 <Select
                   {...field}
                   onChange={(option) => {
-                    field.onChange(option); // Update form state
-                    setValue('state', ''); // Reset state when country changes
-                    setValue('city', ''); // Reset city when country changes
+                    field.onChange(option);
+                    setValue('state', '');
+                    setValue('city', '');
                   }}
                   styles={customStyles}
                   options={countries}
                 />
                 {fieldState.error && (
-                  <span style={{ color: 'red', fontSize: '12px' }}>
+                  <span className="text-red-500 text-xs">
                     {fieldState.error.message}
                   </span>
                 )}
@@ -562,26 +451,27 @@ function EditProf() {
           />
         </div>
 
-        <div style={{ marginBottom: '1em' }}>
+        {/* State */}
+        <div className="mb-4">
           <label>State</label>
           <Controller
             name="state"
             control={control}
-            defaultValue="" // Default value for the field
-            rules={{ required: 'State is required' }} // Validation rules
+            defaultValue=""
+            rules={{ required: 'State is required' }}
             render={({ field, fieldState }) => (
               <>
                 <Select
                   {...field}
                   onChange={(option) => {
-                    field.onChange(option); // Update form state
-                    setValue('city', ''); // Reset city when state changes
+                    field.onChange(option);
+                    setValue('city', '');
                   }}
                   styles={customStyles}
                   options={states}
                 />
                 {fieldState.error && (
-                  <span style={{ color: 'red', fontSize: '12px' }}>
+                  <span className="text-red-500 text-xs">
                     {fieldState.error.message}
                   </span>
                 )}
@@ -591,22 +481,18 @@ function EditProf() {
         </div>
 
         {/* City */}
-        <div style={{ marginBottom: '1em' }}>
+        <div className="mb-4">
           <label>City</label>
           <Controller
             name="city"
             control={control}
             defaultValue=""
-            rules={{ required: 'City is required' }} // Validation rules
+            rules={{ required: 'City is required' }}
             render={({ field, fieldState }) => (
               <>
-                <Select
-                  {...field}
-                  styles={customStyles}
-                  options={cities} // Make sure cities is defined
-                />
+                <Select {...field} styles={customStyles} options={cities} />
                 {fieldState.error && (
-                  <span style={{ color: 'red', fontSize: '12px' }}>
+                  <span className="text-red-500 text-xs">
                     {fieldState.error.message}
                   </span>
                 )}
@@ -616,43 +502,23 @@ function EditProf() {
         </div>
 
         {/* Update and Cancel Buttons */}
-        <div
-          style={{
-            marginTop: '1.5em',
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
+        <div className="mt-6 flex justify-between">
           <button
             type="submit"
-            style={{
-              padding: '0.7em 2em',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-            }}
+            className="px-8 py-2 bg-[#8500ff] text-white rounded-[10px] cursor-pointer"
           >
             Update
           </button>
           <button
             type="button"
-            onClick={() => console.log('Cancelled')}
-            style={{
-              padding: '0.7em 2em',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-            }}
+            onClick={() => router.back()}
+            className="px-8 py-2 bg-[#8500ff] text-white rounded-[10px] cursor-pointer "
           >
             Cancel
           </button>
         </div>
       </form>
-    </div>
+    </PostsLayout>
   );
 }
 

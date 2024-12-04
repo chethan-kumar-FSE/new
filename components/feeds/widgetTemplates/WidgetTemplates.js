@@ -1,18 +1,15 @@
 'use client';
 import React, { useEffect, useState, Suspense } from 'react';
 import { genreService } from '@/services/genreService';
-import Template1 from './template-1/Template1';
-import Template2 from './template-2/Template2';
-import Template3 from './template-3/Template3';
-import Template4 from './template-4/Template4';
-import Template5 from './template-5/Template5';
+import { Template1, Template2, Template3, Template4 } from './index';
 import { v4 as uuidv4 } from 'uuid';
 
 import { shuffleArray } from '@/utils/shuffleArray';
+import Cookies from 'js-cookie';
 
-function WidgetTemplates({ lang }) {
+function WidgetTemplates() {
   const [templateToRender, setTemplateToRender] = useState('');
-
+  const language = Cookies.get('language');
   useEffect(() => {
     (async () => {
       const templates = [
@@ -24,9 +21,14 @@ function WidgetTemplates({ lang }) {
       ];
 
       const genreListResponse = await genreService.getGenre({
-        requestBody: { lang: lang || 'en' },
+        requestBody: { lang: language || 'en' },
       });
 
+      //handle when genre list comes as undefined due to offline
+      if (!genreListResponse) {
+        setTemplateToRender(null);
+        return;
+      }
       const shuffledArray = shuffleArray(genreListResponse);
 
       // Retrieve the last used template index from localStorage or default to 0
@@ -39,7 +41,7 @@ function WidgetTemplates({ lang }) {
       // Render the template based on the index
       const component = React.cloneElement(templates[templateIndex], {
         genreList: shuffledArray,
-        lang: lang,
+        lang: language,
       });
 
       setTemplateToRender(component);
@@ -50,9 +52,9 @@ function WidgetTemplates({ lang }) {
         (templateIndex + 1) % templates.length
       );
     })();
-  }, [lang]); // Depend on `isOnPage` to update when the component conditionally renders
+  }, [language]); // Depend on `isOnPage` to update when the component conditionally renders
 
-  return <Suspense fallback={<p>loading...</p>}>{templateToRender}</Suspense>;
+  return <div className="w-[100%]">{templateToRender}</div>;
 }
 
 export default WidgetTemplates;

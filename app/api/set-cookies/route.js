@@ -14,7 +14,7 @@ export async function POST(request) {
   const cookieOptions = {
     // httpOnly: true, // Prevents client-side access to the cookie
     // secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-    maxAge: 60 * 60 * 24 * 24, // Cookie expiration: 1 day
+    maxAge: 60 * 60 * 24 * 24 * 24, // Cookie expiration: 24 days
     path: '/', // Path where the cookie is accessible
   };
 

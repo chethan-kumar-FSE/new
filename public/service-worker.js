@@ -1,188 +1,138 @@
-import { skipWaiting, clientsClaim } from 'workbox-core';
-import { ExpirationPlugin } from 'workbox-expiration';
-import { NetworkOnly, NetworkFirst, CacheFirst, StaleWhileRevalidate } from 'workbox-strategies';
-import { registerRoute, setDefaultHandler, setCatchHandler } from 'workbox-routing';
-import { matchPrecache, precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+console.log('Service Worker script loaded');
+const CACHED_VERSION = 1;
+// Define cache names
+const CACHE_LIST = [
+  `PRE_CACHING_ASSETS_V${CACHED_VERSION}`,
+  `PAGES_CACHE_V${CACHED_VERSION}`,
+  `STATIC_CACHE_V${CACHED_VERSION}`,
+  `NEXT_IMAGE_CACHE_V${CACHED_VERSION}`,
+];
 
-skipWaiting();
-clientsClaim();
+// Pre-caching static resources during install event
+self.addEventListener('install', (event) => {
+  console.log('Service Worker installing.');
 
-// must include following lines when using inject manifest module from workbox
-// https://developers.google.com/web/tools/workbox/guides/precache-files/workbox-build#add_an_injection_point
-const WB_MANIFEST = self.__WB_MANIFEST;
-// Precache fallback route and image
-WB_MANIFEST.push({
-  url: '/fallback',
-  revision: '1234567890',
+  // Using waitUntil to ensure the install event completes
+  event.waitUntil(
+    caches.open(CACHE_LIST[0]).then((cache) => {
+      return cache.addAll([
+        '/',
+        '/offline.html',
+        './../app/global.css',
+        '/others/loader.gif',
+        '/others/logo.svg',
+        '/others/copyIcon.svg',
+        '/others/embedIcon.svg',
+        '/others/googleLogo.png',
+      ]);
+    })
+  );
+
+  self.skipWaiting(); // Activate the service worker immediately
 });
-precacheAndRoute(WB_MANIFEST);
 
-cleanupOutdatedCaches();
-registerRoute(
-  '/',
-  new NetworkFirst({
-    cacheName: 'start-url',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 1,
-        maxAgeSeconds: 86400,
-        purgeOnQuotaError: !0,
-      }),
-    ],
-  }),
-  'GET'
-);
-registerRoute(
-  /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
-  new CacheFirst({
-    cacheName: 'google-fonts',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 4,
-        maxAgeSeconds: 31536e3,
-        purgeOnQuotaError: !0,
-      }),
-    ],
-  }),
-  'GET'
-);
-registerRoute(
-  /\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$/i,
-  new StaleWhileRevalidate({
-    cacheName: 'static-font-assets',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 4,
-        maxAgeSeconds: 604800,
-        purgeOnQuotaError: !0,
-      }),
-    ],
-  }),
-  'GET'
-);
-// disable image cache, so we could observe the placeholder image when offline
-registerRoute(
-  /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
-  new NetworkOnly({
-    cacheName: 'static-image-assets',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 64,
-        maxAgeSeconds: 86400,
-        purgeOnQuotaError: !0,
-      }),
-    ],
-  }),
-  'GET'
-);
-registerRoute(
-  /\.(?:js)$/i,
-  new StaleWhileRevalidate({
-    cacheName: 'static-js-assets',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 32,
-        maxAgeSeconds: 86400,
-        purgeOnQuotaError: !0,
-      }),
-    ],
-  }),
-  'GET'
-);
-registerRoute(
-  /\.(?:css|less)$/i,
-  new StaleWhileRevalidate({
-    cacheName: 'static-style-assets',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 32,
-        maxAgeSeconds: 86400,
-        purgeOnQuotaError: !0,
-      }),
-    ],
-  }),
-  'GET'
-);
-registerRoute(
-  /\.(?:json|xml|csv)$/i,
-  new NetworkFirst({
-    cacheName: 'static-data-assets',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 32,
-        maxAgeSeconds: 86400,
-        purgeOnQuotaError: !0,
-      }),
-    ],
-  }),
-  'GET'
-);
-registerRoute(
-  /\/api\/.*$/i,
-  new NetworkFirst({
-    cacheName: 'apis',
-    networkTimeoutSeconds: 10,
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 16,
-        maxAgeSeconds: 86400,
-        purgeOnQuotaError: !0,
-      }),
-    ],
-  }),
-  'GET'
-);
-registerRoute(
-  /.*/i,
-  new NetworkFirst({
-    cacheName: 'others',
-    networkTimeoutSeconds: 10,
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 32,
-        maxAgeSeconds: 86400,
-        purgeOnQuotaError: !0,
-      }),
-    ],
-  }),
-  'GET'
-);
+// Activate event for cleanup and cache management
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker activated.');
 
-// following lines gives you control of the offline fallback strategies
-// https://developers.google.com/web/tools/workbox/guides/advanced-recipes#comprehensive_fallbacks
+  // Delete old caches that are no longer in the CACHE_LIST
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (!CACHE_LIST.includes(cacheName)) {
+            console.log('Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
 
-// Use a stale-while-revalidate strategy for all other requests.
-setDefaultHandler(new StaleWhileRevalidate());
+  self.clients.claim(); // Make the service worker immediately take control of the clients
+});
 
-// This "catch" handler is triggered when any of the other routes fail to
-// generate a response.
-setCatchHandler(({ event }) => {
-  // The FALLBACK_URL entries must be added to the cache ahead of time, either
-  // via runtime or precaching. If they are precached, then call
-  // `matchPrecache(FALLBACK_URL)` (from the `workbox-precaching` package)
-  // to get the response from the correct cache.
-  //
-  // Use event, request, and url to figure out how to respond.
-  // One approach would be to use request.destination, see
-  // https://medium.com/dev-channel/service-worker-caching-strategies-based-on-request-types-57411dd7652c
-  switch (event.request.destination) {
-    case 'document':
-      // If using precached URLs:
-      return matchPrecache('/fallback');
-      // return caches.match('/fallback')
-      break;
-    case 'image':
-      // If using precached URLs:
-      return matchPrecache('/static/images/fallback.png');
-      // return caches.match('/static/images/fallback.png')
-      break;
-    case 'font':
-    // If using precached URLs:
-    // return matchPrecache(FALLBACK_FONT_URL);
-    // return caches.match('/static/fonts/fallback.otf')
-    // break
-    default:
-      // If we don't have a fallback, just return an error response.
-      return Response.error();
+// Cache API responses with a proper strategy (NetworkFirst or CacheFirst)
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // Handle fetch events for pages that need caching (e.g., login, profile pages, etc.)
+  if (
+    url.pathname === '/' ||
+    url.pathname === '/offline.html' ||
+    url.pathname.match(/^\/[a-zA-Z]{2}(\/)?$/i) ||
+    url.pathname.match(/^\/([a-zA-Z]{2}\/)?[a-zA-Z\-]+-c\d+$/)
+  ) {
+    event.respondWith(
+      fetch(event.request)
+        .then(async (response) => {
+          const cache = await caches.open(CACHE_LIST[1]);
+          cache.put(event.request, response.clone());
+          return response; // Return the network response
+        })
+        .catch(async () => {
+          // If network fails, try serving from cache
+          const cachedResponse = await caches.match(event.request);
+          return cachedResponse || caches.match('/offline.html'); // Fallback to offline.html
+        })
+    );
+  }
+
+  // Cache images fetched via Next.js
+  if (url.pathname.startsWith('/_next/image')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(async (response) => {
+          const cache = await caches.open(CACHE_LIST[2]);
+          cache.put(event.request, response.clone());
+          return response;
+        })
+        .catch(async () => {
+          const cachedResponse = await caches.match(event.request);
+          return cachedResponse || caches.match('/offline.html'); // Fallback to offline.html
+        })
+    );
+  }
+
+  // Cache static assets such as images, JS, CSS, fonts, etc.
+  if (
+    url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i) ||
+    url.pathname.includes('.js') ||
+    url.origin === 'https://fonts.googleapis.com' ||
+    url.pathname.startsWith('/_next/static/css') ||
+    url.origin === 'https://fonts.gstatic.com'
+  ) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          // Return from cache if available
+          return cachedResponse;
+        }
+
+        // Otherwise, fetch from network and cache for future use
+        return fetch(event.request).then((networkResponse) => {
+          return caches.open(CACHE_LIST[3]).then((cache) => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse; // Return network response
+          });
+        });
+      })
+    );
+  }
+
+  if (!url.pathname.startsWith('/api')) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        // If the request matches a cached response, return it
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        // Otherwise, fetch from network and return offline.html in case of failure
+        return fetch(event.request).catch(() => {
+          return caches.match('/offline.html'); // Fallback to offline.html
+        });
+      })
+    );
   }
 });

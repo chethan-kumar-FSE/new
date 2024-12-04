@@ -11,11 +11,13 @@ function useResource(fetchFn) {
     setError(null); // Clear any existing errors
     try {
       const response = await fetchFn(body);
+      console.log('requestbody', response);
       setData(response);
       return response; // Return the response immediately for chaining
     } catch (err) {
+      console.log('erro from resource', err);
       setError(err); // Set error if caught
-      throw err; // Throw error to handle in consuming code
+      //throw err; // Throw error to handle in consuming code
     } finally {
       setIsLoading(false);
     }

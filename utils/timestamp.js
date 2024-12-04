@@ -5,31 +5,29 @@ function timeAgo(unixTimestamp) {
 
   let interval = Math.floor(seconds / 31536000);
   if (interval >= 1) {
-    return interval === 1 ? `${interval} year ago` : `${interval} years ago`;
+    return `${interval}y ago`;
   }
 
   interval = Math.floor(seconds / 2592000);
   if (interval >= 1) {
-    return interval === 1 ? `${interval} month ago` : `${interval} months ago`;
+    return `${interval}m ago`;
   }
 
   interval = Math.floor(seconds / 86400);
   if (interval >= 1) {
-    return interval === 1 ? `${interval} day ago` : `${interval} days ago`;
+    return `${interval}d ago`;
   }
 
   interval = Math.floor(seconds / 3600);
   if (interval >= 1) {
-    return interval === 1 ? `${interval} hour ago` : `${interval} hours ago`;
+    return `${interval}h ago`;
   }
 
   interval = Math.floor(seconds / 60);
   if (interval >= 1) {
-    return interval === 1
-      ? `${interval} minute ago`
-      : `${interval} minutes ago`;
+    return `${interval}m ago`;
   }
 
-  return seconds === 1 ? `${seconds} second ago` : `${seconds} seconds ago`;
+  return `${seconds}s ago`;
 }
 export { timeAgo };

@@ -2,24 +2,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
-function page({ params }) {
-  const { username } = params;
-
+function Page({ params }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '3em' }}>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '2em 0',
-        }}
-      >
+    <div className="flex flex-col gap-12">
+      <div className="flex flex-col justify-center items-center py-8">
         <Image
-          src={
-            'https://www.hitzfeed.com/trends/media/images/icons/video-icon-large.svg'
-          }
+          src="https://www.hitzfeed.com/trends/media/images/icons/video-icon-large.svg"
           width={80}
           height={80}
           alt="alternate"
@@ -27,34 +15,12 @@ function page({ params }) {
         <p>videos Coming</p>
         <p>soon...</p>
       </div>
-      <div
-        style={{
-          textAlign: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1em',
-        }}
-      >
-        <Link
-          href={'/'}
-          style={{ color: '#fff', fontWeight: 'bold', textDecoration: 'none' }}
-        >
+
+      <div className="text-center flex flex-col gap-4">
+        <Link href="/" className="text-white font-bold no-underline">
           <b>Click here</b>
         </Link>
-        <button
-          style={{
-            background: '#8500ff',
-            padding: '10px 20px',
-            borderRadius: '50px',
-            color: '#fff',
-            fontSize: '16px',
-            fontWeight: '500',
-            textAlign: 'center',
-            display: 'inline-block',
-            textTransform: 'capitalize',
-            margin: '0 auto',
-          }}
-        >
+        <button className="bg-[#8500ff] py-3 px-4 mb-[3.5em] rounded-full text-white text-lg font-medium capitalize mx-auto">
           Check out the <br />
           top Trending and Latest Feeds
         </button>
@@ -63,4 +29,4 @@ function page({ params }) {
   );
 }
 
-export default page;
+export default Page;
