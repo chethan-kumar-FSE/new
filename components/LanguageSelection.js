@@ -59,7 +59,6 @@ function LanguageSelection({ isFromHome }) {
       } text-white flex justify-center items-center flex-col p-5`}
     >
       <div className="w-full max-w-[440px]">
-        {/* <CommonHeader /> */}
         <p className="text-center py-6">Select languages</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 mx-auto relative">
           {languages?.map((lang, index) => {
