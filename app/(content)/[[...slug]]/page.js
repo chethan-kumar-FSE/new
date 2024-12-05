@@ -72,9 +72,10 @@ export const generateMetadata = async ({ index, slug }) => {
   }
 
   //checking if its a catgory page
-  if (slug[index]?.includes('-c')) {
+  if (slug[index]?.match(/-c\d{1,2}/)) {
     try {
-      const categoryName = slug[index]?.split('-c')[0];
+      const indexed = slug[index]?.lastIndexOf('-c');
+      const categoryName = slug[index]?.slice(0, indexed);
       const categorySeoData = await feedsServices?.getCategorySeo({
         requestBody: {
           lang: 'en',
@@ -93,7 +94,7 @@ export const generateMetadata = async ({ index, slug }) => {
 
       imageUrl = `https://www.hitzfeed.com/trends/media/images/category/250x250/${categoryName}_1.jpg`;
 
-      return metaObject({ title, description, keywords, ogUrl });
+      return metaObject({ title, description, keywords, ogUrl, imageUrl });
     } catch (err) {
       console.log(err);
     }
@@ -170,8 +171,9 @@ export default async function Page({ params }) {
   }
 
   //extract and check if the categoryName matches the condition
-  if (slug[index]?.includes('-c')) {
-    const categoryId = slug[index]?.split('-c')[1];
+  if (slug[index]?.match(/-c\d{1,2}/)) {
+    const indexed = slug[index]?.lastIndexOf('-c');
+    const categoryId = slug[index].slice(indexed + 2);
     componentToRender = <Category params={{ categoryId }} />;
   }
 
