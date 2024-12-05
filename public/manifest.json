@@ -4,8 +4,8 @@
   "description": "sample description",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#e0f7fa",
-  "theme_color": "#0077cc",
+  "background_color": "#000",
+  "theme_color": "#000",
   "icons": [
     {
       "src": "/images/icons-72x72.webp",

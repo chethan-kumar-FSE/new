@@ -1,5 +1,6 @@
 import GoogleProvider from 'next-auth/providers/google';
 import { SESSION_MAX_AGE, JWT_MAX_AGE } from '@/utils/constant';
+import { cookies } from 'next/headers';
 export const config = {
   providers: [
     GoogleProvider({
@@ -15,6 +16,26 @@ export const config = {
   jwt: {
     secret: process.env.NEXTAUTH_SECRET, // Ensure consistency with your secret
     maxAge: JWT_MAX_AGE, // Set JWT max age (in seconds), e.g., 30 days
+  },
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token', // Session cookie name
+      options: {
+        httpOnly: true, // Ensure the cookie is accessible only via HTTP (not JavaScript)
+        secure: process.env.NODE_ENV === 'production', // Only send cookies over HTTPS in production
+        sameSite: 'none', // Set SameSite to Lax for cross-origin requests (adjust as needed)
+        path: '/', // Path for the cookie
+      },
+    },
+    callbackUrl: {
+      name: 'next-auth.callback-url', // Cookie name for callback URL
+      options: {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax', // Set SameSite for callback URL cookie
+        path: '/',
+      },
+    },
   },
   callbacks: {
     async jwt({ token, account, profile }) {
