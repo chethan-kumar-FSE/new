@@ -46,7 +46,6 @@ export default async function PostById({ params }) {
     return (
       <PostsLayout>
         <div className="flex flex-col gap-[1em]">
-          <FeedsHeader />
           <Template5 genreList={shuffledGenreList} lang={language} />
           <InitialFeeds initialFeedsOnLoad={feedById} lang={language} />
         </div>

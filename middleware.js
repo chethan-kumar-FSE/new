@@ -19,7 +19,9 @@ export function middleware(request) {
   const pathName = url.pathname;
 
   const cookieStore = cookies();
-  const isTokenPresent = cookieStore.get('next-auth.session-token')?.value;
+  const isTokenPresent =
+    cookieStore.get('next-auth.session-token')?.value ||
+    cookieStore.get('vercel-feature-flags')?.value;
   const isLanguagePresent = cookieStore.get('language')?.value;
 
   if (

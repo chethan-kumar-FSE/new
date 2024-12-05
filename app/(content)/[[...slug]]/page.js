@@ -144,6 +144,7 @@ export default async function Page({ params }) {
   let index = isLanguagePresent ? 1 : 0;
 
   const metadata = await generateMetadata({ index, slug });
+  console.log('meta-data', metadata);
 
   //check if slug has langauge and trending
   if (slug?.length === 2 && slug[1] === 'trending') {

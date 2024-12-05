@@ -22,7 +22,6 @@ async function Trending() {
     });
     return (
       <PostsLayout>
-        <FeedsHeader />
         <InitialFeeds
           initialFeedsOnLoad={initialFeedsOnLoad}
           lang={language}
