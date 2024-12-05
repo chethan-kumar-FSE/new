@@ -46,11 +46,11 @@ export const BottomBar = async () => {
             target={newTab && '_blank'}
           >
             {index === items.length - 1 && profileUrl ? (
-              <Image
+              <img
                 src={profileUrl}
                 width={30}
                 height={30}
-                priority
+                loading="eager"
                 alt="profile"
                 className="rounded-full"
               />

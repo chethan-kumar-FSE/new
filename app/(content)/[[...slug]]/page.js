@@ -183,18 +183,17 @@ export default async function Page({ params }) {
   return (
     <>
       {/* if meta data present only returning Head component to appear in the SEO */}
-      {metadata && (
-        <Head>
-          <title>{metadata?.title}</title>
-          <meta name="description" content={metadata?.description} />
-          <meta property="og:title" content={metadata?.openGraph?.title} />
-          <meta
-            property="og:description"
-            content={metadata?.openGraph?.description}
-          />
-          <meta property="og:image" content={metadata?.openGraph?.images[0]} />
-        </Head>
-      )}
+      <Head>
+        <title>{metadata?.title}</title>
+        <meta name="description" content={metadata?.description} />
+        <meta property="og:title" content={metadata?.openGraph?.title} />
+        <meta
+          property="og:description"
+          content={metadata?.openGraph?.description}
+        />
+        <meta property="og:image" content={metadata?.openGraph?.images[0]} />
+      </Head>
+
       <ErrorBoundary FallbackComponent={Fallback}>
         {componentToRender}
       </ErrorBoundary>

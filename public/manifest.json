@@ -9,7 +9,7 @@
   "icons": [
     {
       "src": "/images/icons-72x72.webp",
-      "sizes": "512x512",
+      "sizes": "72x72",
       "type": "image/webp"
     },
     {

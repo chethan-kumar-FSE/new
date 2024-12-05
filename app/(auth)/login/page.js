@@ -96,12 +96,12 @@ export default function Login() {
     <div className="text-white w-full h-screen flex justify-center items-center flex-col gap-16 bg-black">
       <div className="flex flex-col gap-12 text-center">
         <div className="flex justify-center">
-          <Image
+          <img
             src={'/others/logo.svg'}
             width={300}
             height={100}
             alt="Logo"
-            priority
+            loading="eager"
           />
         </div>
 
