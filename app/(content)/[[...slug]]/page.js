@@ -19,8 +19,9 @@ export const generateMetadata = async ({ index, slug }) => {
   let keywords;
   let ogUrl;
 
+  if (!slug) return;
   //if slug's length equals to index then return FeedsSeo
-  if (slug?.length === index) {
+  /*   if (slug?.length === index || (slug?.length === 1 && !slug[0])) {
     try {
       //fetching feeds seo data
       const homeSeoData = await feedsServices?.getFeedsSeo({
@@ -39,12 +40,12 @@ export const generateMetadata = async ({ index, slug }) => {
       imageUrl =
         'https://www.hitzfeed.com/trends/media/images/hitzfeed-og-image.jpg';
       ogUrl = siteUrl;
-
+      console.log('metadtanotfrom home');
       return metaObject({ title, description, ogUrl, imageUrl, keywords });
     } catch (err) {
       console.log(err);
     }
-  }
+  } */
 
   //extract post id if reg ex matches the condition
   let postId = slug[index]?.match(/-p(\d+)/)?.[1];
@@ -72,10 +73,12 @@ export const generateMetadata = async ({ index, slug }) => {
   }
 
   //checking if its a catgory page
+
   if (slug[index]?.match(/-c\d{1,2}/)) {
     try {
       const indexed = slug[index]?.lastIndexOf('-c');
       const categoryName = slug[index]?.slice(0, indexed);
+
       const categorySeoData = await feedsServices?.getCategorySeo({
         requestBody: {
           lang: 'en',
@@ -145,8 +148,7 @@ export default async function Page({ params }) {
   let index = isLanguagePresent ? 1 : 0;
 
   const metadata = await generateMetadata({ index, slug });
-  console.log('meta-data', metadata);
-
+  console.log('metadat', metadata);
   //check if slug has langauge and trending
   if (slug?.length === 2 && slug[1] === 'trending') {
     return (
@@ -181,21 +183,23 @@ export default async function Page({ params }) {
   if (!componentToRender) {
     return notFound();
   }
-
+  console.log('another meta data', metadata);
   return (
     <>
       {/* if meta data present only returning Head component to appear in the SEO */}
-      <Head>
-        <title>{metadata?.title}</title>
-        <meta name="description" content={metadata?.description} />
-        <meta property="og:title" content={metadata?.openGraph?.title} />
-        <meta
-          property="og:description"
-          content={metadata?.openGraph?.description}
-        />
-        <meta property="og:image" content={metadata?.openGraph?.images[0]} />
-      </Head>
-
+      {metadata && (
+        <Head>
+          <title>{metadata?.title}</title>
+          <meta name="description" content={metadata?.description} />
+          <meta property="og:title" content={metadata?.openGraph?.title} />
+          <meta
+            property="og:description"
+            content={metadata?.openGraph?.description}
+          />
+          <meta property="og:image" content={metadata?.openGraph?.images[0]} />
+        </Head>
+      )}
+      {console.log('metadata', metadata)}
       <ErrorBoundary FallbackComponent={Fallback}>
         {componentToRender}
       </ErrorBoundary>
