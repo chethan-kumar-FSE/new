@@ -41,8 +41,8 @@ export const generateMetadata = async ({ params }) => {
         'https://www.hitzfeed.com/trends/media/images/hitzfeed-og-image.jpg';
       ogUrl = siteUrl;
     }
-    if (slug.length === 1 && slug[0].includes('-p')) {
-      const postId = slug[0].match(/-p(\d+)/)?.[1];
+    const postId = slug[0]?.match(/-p(\d+)/)?.[1];
+    if (postId) {
       const response = await feedsServices.getFeedById({
         requestBody: {
           story_id: postId,
@@ -62,10 +62,10 @@ export const generateMetadata = async ({ params }) => {
       keywords = `${title} ${category} quote on card, ${title} ${category} quote card, ${title}, ${category} quote cards, trending quote cards, latest ${category} quote cards, trending ${category} quote cards`;
       imageUrl = `https://imagesvs.oneindia.com/webp/trends${share_image_link}`;
     }
-    if (slug.length === 1 && slug[0].includes('-c')) {
-      const categoryName = slug[0].split('-c')[0];
+    if (slug[0]?.match(/-c\d{1,2}/)) {
       console.log('executing from inside');
-
+      const indexed = slug[0]?.lastIndexOf('-c');
+      const categoryName = slug[0]?.slice(0, indexed);
       const response = await feedsServices.getCategorySeo({
         requestBody: {
           lang: 'en',
@@ -81,11 +81,7 @@ export const generateMetadata = async ({ params }) => {
       ogUrl = `${siteUrl}/${categoryName}-c${id}/`;
 
       imageUrl = `https://www.hitzfeed.com/trends/media/images/category/250x250/${categoryName}_1.jpg`;
-      console.log(
-        'exuecint g-------------------------->>>>>>>>>>>>>>',
-        title,
-        imageUrl
-      );
+
       // Example for category-specific image
     }
   }
@@ -108,8 +104,8 @@ export const generateMetadata = async ({ params }) => {
         'https://www.hitzfeed.com/trends/media/images/hitzfeed-og-image.jpg';
       ogUrl = siteUrl;
     }
-    if (slug.length === 2 && slug[1].includes('-p')) {
-      const postId = slug[1].match(/-p(\d+)/)?.[1];
+    const postId = slug[1]?.match(/-p(\d+)/)?.[1];
+    if (postId) {
       const data = await feedsServices.getFeedById({
         requestBody: {
           story_id: postId,
@@ -129,9 +125,9 @@ export const generateMetadata = async ({ params }) => {
       keywords = `${title} ${category} quote on card, ${title} ${category} quote card, ${title}, ${category} quote cards, trending quote cards, latest ${category} quote cards, trending ${category} quote cards`;
       imageUrl = `https://imagesvs.oneindia.com/webp/trends${share_image_link}`;
     }
-    if (slug.length === 2 && slug[1].includes('-c')) {
-      const categoryName = slug[1].split('-c')[0];
-      console.log('executing from inside');
+    if (slug[1]?.match(/-c\d{1,2}/)) {
+      const indexed = slug[1]?.lastIndexOf('-c');
+      const categoryName = slug[1]?.slice(0, indexed);
 
       const data = await feedsServices.getCategorySeo({
         requestBody: {
@@ -141,19 +137,12 @@ export const generateMetadata = async ({ params }) => {
         },
       });
       const { id, meta_title, meta_description, meta_keywords } = data;
-      console.log('response', meta_title);
       title = `${meta_title} Category - Hitzfeed`;
       description = meta_description;
       keywords = meta_keywords;
       ogUrl = `${siteUrl}/${categoryName}-c${id}/`;
 
       imageUrl = `https://www.hitzfeed.com/trends/media/images/category/250x250/${categoryName}_1.jpg`;
-      console.log(
-        'exuecint g-------------------------->>>>>>>>>>>>>>',
-        title,
-        imageUrl
-      );
-      // Example for category-specific image
     }
   }
   // Logic to customize metadata based on the slug
@@ -191,42 +180,41 @@ export default async function Page({ params }) {
 
   // Handle routes based on `lang` and `slug`
   if (!lang) {
-    if (slug.length === 0 || (slug.length === 1 && !slug[0])) {
+    if (slug?.length === 0 || (slug?.length === 1 && !slug[0])) {
       return (
         <>
           <Head>
             <title>{metadata.title}</title>
-            <meta name="description" content={metadata.description} />
-            <meta property="og:title" content={metadata.openGraph.title} />
+            <meta name="description" content={metadata?.description} />
+            <meta property="og:title" content={metadata?.openGraph?.title} />
             <meta
               property="og:description"
-              content={metadata.openGraph.description}
+              content={metadata?.openGraph?.description}
             />
             <meta
               property="og:image"
-              content={metadata.openGraph.images[0].url}
+              content={metadata?.openGraph?.images[0]?.url}
             />
           </Head>
           <Feeds />
         </>
       );
     }
-
-    if (slug.length === 1 && slug[0].includes('-p')) {
-      const postId = slug[0].match(/-p(\d+)/)?.[1];
+    const postId = slug[0]?.match(/-p(\d+)/)?.[1];
+    if (postId) {
       return (
         <>
           <Head>
             <title>{metadata.title}</title>
-            <meta name="description" content={metadata.description} />
-            <meta property="og:title" content={metadata.openGraph.title} />
+            <meta name="description" content={metadata?.description} />
+            <meta property="og:title" content={metadata?.openGraph?.title} />
             <meta
               property="og:description"
-              content={metadata.openGraph.description}
+              content={metadata?.openGraph?.description}
             />
             <meta
               property="og:image"
-              content={metadata.openGraph.images[0].url}
+              content={metadata?.openGraph?.images[0]?.url}
             />
           </Head>
           <IndiFeeds params={{ postId }} />
@@ -234,21 +222,22 @@ export default async function Page({ params }) {
       );
     }
 
-    if (slug.length === 1 && slug[0].includes('-c')) {
-      const categoryId = slug[0].split('-c')[1];
+    if (slug[0]?.match(/-c\d{1,2}/)) {
+      const indexed = slug[0]?.lastIndexOf('-c');
+      const categoryId = slug[0]?.slice(indexed + 2);
       return (
         <>
           <Head>
             <title>{metadata.title}</title>
-            <meta name="description" content={metadata.description} />
-            <meta property="og:title" content={metadata.openGraph.title} />
+            <meta name="description" content={metadata?.description} />
+            <meta property="og:title" content={metadata?.openGraph.title} />
             <meta
               property="og:description"
-              content={metadata.openGraph.description}
+              content={metadata?.openGraph?.description}
             />
             <meta
               property="og:image"
-              content={metadata.openGraph.images[0].url}
+              content={metadata?.openGraph?.images[0]?.url}
             />
           </Head>
           <Category params={{ categoryId: categoryId }} />
@@ -262,37 +251,37 @@ export default async function Page({ params }) {
       return (
         <>
           <Head>
-            <title>{metadata.title}</title>
-            <meta name="description" content={metadata.description} />
-            <meta property="og:title" content={metadata.openGraph.title} />
+            <title>{metadata?.title}</title>
+            <meta name="description" content={metadata?.description} />
+            <meta property="og:title" content={metadata?.openGraph.title} />
             <meta
               property="og:description"
-              content={metadata.openGraph.description}
+              content={metadata?.openGraph?.description}
             />
             <meta
               property="og:image"
-              content={metadata.openGraph.images[0].url}
+              content={metadata?.openGraph?.images[0]?.url}
             />
           </Head>
           <Feeds />
         </>
       );
     }
-    if (slug.length === 2 && slug[1].includes('-p')) {
-      const postId = slug[1].match(/-p(\d+)/)?.[1];
+    const postId = slug[1]?.match(/-p(\d+)/)?.[1];
+    if (postId) {
       return (
         <>
           <Head>
-            <title>{metadata.title}</title>
-            <meta name="description" content={metadata.description} />
-            <meta property="og:title" content={metadata.openGraph.title} />
+            <title>{metadata?.title}</title>
+            <meta name="description" content={metadata?.description} />
+            <meta property="og:title" content={metadata?.openGraph.title} />
             <meta
               property="og:description"
-              content={metadata.openGraph.description}
+              content={metadata?.openGraph?.description}
             />
             <meta
               property="og:image"
-              content={metadata.openGraph.images[0].url}
+              content={metadata?.openGraph?.images[0]?.url}
             />
           </Head>
           <IndiFeeds params={{ postId }} />
@@ -300,21 +289,22 @@ export default async function Page({ params }) {
       );
     }
 
-    if (slug.length === 2 && slug[1].includes('-c')) {
-      const categoryId = slug[1].split('-c')[1];
+    if (slug[1]?.match(/-c\d{1,2}/)) {
+      const indexed = slug[1]?.lastIndexOf('-c');
+      const categoryId = slug[1]?.slice(indexed + 2);
       return (
         <>
           <Head>
-            <title>{metadata.title}</title>
-            <meta name="description" content={metadata.description} />
-            <meta property="og:title" content={metadata.openGraph.title} />
+            <title>{metadata?.title}</title>
+            <meta name="description" content={metadata?.description} />
+            <meta property="og:title" content={metadata?.openGraph.title} />
             <meta
               property="og:description"
-              content={metadata.openGraph.description}
+              content={metadata?.openGraph?.description}
             />
             <meta
               property="og:image"
-              content={metadata.openGraph.images[0].url}
+              content={metadata?.openGraph?.images[0]?.url}
             />
           </Head>
           <Category params={{ categoryId: categoryId }} />

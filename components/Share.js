@@ -39,14 +39,14 @@ function ShareButtons({ postDetailsOnShare }) {
   const userId = Cookies.get('userId');
 
   const handleOnClipboardCopy = async () => {
-    toggleBackdropStatus({ boolVal: true });
+    toggleBackdropStatus({ boolVal: false });
     await navigator.clipboard?.writeText(link);
 
     notify({ message: 'Link copied to clipboard' });
   };
 
   const handleOnEmbeddedCopy = async () => {
-    toggleBackdropStatus({ boolVal: true });
+    toggleBackdropStatus({ boolVal: false });
     const embeddedCode = getEmbeddedCode({ postId: postId });
     await navigator.clipboard?.writeText(embeddedCode);
 
@@ -78,7 +78,7 @@ function ShareButtons({ postDetailsOnShare }) {
       url = 'mailto:?subject=' + newsTitle + '&body=' + text;
     }
     window.open(url, '_blank');
-    toggleBackdropStatus({ boolVal: true });
+    toggleBackdropStatus({ boolVal: false });
 
     try {
       await feedsServices.getUpdatedShareCount({
