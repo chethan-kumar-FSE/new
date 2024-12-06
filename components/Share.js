@@ -33,7 +33,7 @@ function ShareButtons({ postDetailsOnShare }) {
   const protocol = window.location.protocol;
 
   let link = `${protocol}//${postUrl}/${urlString}-p${postId}`;
-  if (language) {
+  if (language && language !== 'en') {
     link = `${protocol}//${postUrl}/${language}/${urlString}-p${postId}`;
   }
   const userId = Cookies.get('userId');
@@ -78,6 +78,8 @@ function ShareButtons({ postDetailsOnShare }) {
       url = 'mailto:?subject=' + newsTitle + '&body=' + text;
     }
     window.open(url, '_blank');
+    toggleBackdropStatus({ boolVal: true });
+
     try {
       await feedsServices.getUpdatedShareCount({
         requestBody: {

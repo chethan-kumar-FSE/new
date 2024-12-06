@@ -101,14 +101,15 @@ export const generateMetadata = async ({ params }) => {
       });
       const { meta_title, meta_description, meta_keywords } = response;
 
-      (title = meta_title), (description = meta_description);
+      title = meta_title;
+      description = meta_description;
       keywords = meta_keywords;
       imageUrl =
         'https://www.hitzfeed.com/trends/media/images/hitzfeed-og-image.jpg';
       ogUrl = siteUrl;
     }
-    if (slug.length === 1 && slug[0].includes('-p')) {
-      const postId = slug[0].match(/-p(\d+)/)?.[1];
+    if (slug.length === 2 && slug[1].includes('-p')) {
+      const postId = slug[1].match(/-p(\d+)/)?.[1];
       const data = await feedsServices.getFeedById({
         requestBody: {
           story_id: postId,
