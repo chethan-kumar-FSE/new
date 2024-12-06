@@ -1,21 +1,22 @@
+'use client'; // Mark this as a client component
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getServerSession } from 'next-auth';
-import { cookies } from 'next/headers'; // Import cookies utility
+import { useSession } from 'next-auth/react'; // Client-side session hook
 import { NEWS_LINKS } from '@/utils/constant';
 import { LiaHomeSolid } from 'react-icons/lia';
 import { RiAccountCircleLine } from 'react-icons/ri';
 import { BsNewspaper } from 'react-icons/bs';
+import Cookies from 'js-cookie';
 
-export const BottomBar = async () => {
-  const session = await getServerSession();
+export const BottomBar = () => {
+  const { data: session } = useSession(); // Get session data client-side
 
-  const cookieStore = cookies(); // Access the cookies
-  const language = cookieStore.get('language')?.value || '';
+  const language = Cookies.get('language');
   const username =
-    cookieStore.get('username')?.value || session?.user?.email.split('@')[0];
-  const profileUrl = session?.user?.image;
-
+    Cookies.get('username') || session?.user?.email.split('@')[0];
+  const imageUrl = session?.user?.image;
   const isLoggedIn = session && session?.user;
 
   const navItems = [
@@ -36,7 +37,7 @@ export const BottomBar = async () => {
   ];
 
   return (
-    <nav className="w-[100%] fixed bottom-0 flex px-[4em] py-[1em] bg-black justify-between ">
+    <nav className="w-[100%] fixed bottom-0 flex px-[4em] py-[1em] bg-black justify-between">
       {navItems.map(({ navigateTo, newTab, icon }, index, items) => {
         return (
           <Link
@@ -45,9 +46,9 @@ export const BottomBar = async () => {
             className="text-center flex cursor-pointer"
             target={newTab && '_blank'}
           >
-            {index === items.length - 1 && profileUrl ? (
+            {index === items.length - 1 && isLoggedIn && profileUrl ? (
               <Image
-                src={profileUrl}
+                src={imageUrl}
                 width={30}
                 height={30}
                 priority
