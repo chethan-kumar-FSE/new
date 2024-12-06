@@ -19,6 +19,8 @@ export const BottomBar = () => {
   const imageUrl = session?.user?.image;
   const isLoggedIn = session && session?.user;
 
+  console.log('printing', language, username, imageUrl, isLoggedIn);
+
   const navItems = [
     {
       icon: <LiaHomeSolid size={30} />,
@@ -46,7 +48,7 @@ export const BottomBar = () => {
             className="text-center flex cursor-pointer"
             target={newTab && '_blank'}
           >
-            {index === items.length - 1 && isLoggedIn && profileUrl ? (
+            {index === items.length - 1 && isLoggedIn && imageUrl ? (
               <Image
                 src={imageUrl}
                 width={30}
