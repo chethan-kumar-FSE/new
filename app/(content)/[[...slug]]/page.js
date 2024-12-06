@@ -32,7 +32,7 @@ export const generateMetadata = async ({ params }) => {
           item: 'home',
         },
       });
-      const { meta_title, meta_description, meta_keywords } = response.data;
+      const { meta_title, meta_description, meta_keywords } = response;
 
       title = meta_title;
       description = meta_description;
@@ -54,7 +54,7 @@ export const generateMetadata = async ({ params }) => {
         url_string,
         share_image_link,
         item_category: category,
-      } = response.data[0];
+      } = response[0];
 
       title = `${news_title} ${category} Quote Card - Hitzfeed`;
       description = `${news_title} ${category} Quotes on Cards: Check the ${news_title} ${category} quotes in the form of flashcards at Hitzfeed.`;
@@ -99,7 +99,7 @@ export const generateMetadata = async ({ params }) => {
           item: 'home',
         },
       });
-      const { meta_title, meta_description, meta_keywords } = response.data;
+      const { meta_title, meta_description, meta_keywords } = response;
 
       (title = meta_title), (description = meta_description);
       keywords = meta_keywords;
@@ -123,23 +123,23 @@ export const generateMetadata = async ({ params }) => {
       } = data[0];
 
       title = `${news_title} ${category} Quote Card - Hitzfeed`;
-      (description = `${news_title} ${category} Quotes on Cards: Check the ${news_title} ${category} quotes in the form of flashcards at Hitzfeed.`),
-        (ogUrl = `${siteUrl}/${url_string}-p${id}/`);
-      (keywords = `${title} ${category} quote on card, ${title} ${category} quote card, ${title}, ${category} quote cards, trending quote cards, latest ${category} quote cards, trending ${category} quote cards`),
-        (imageUrl = `https://imagesvs.oneindia.com/webp/trends${share_image_link}`);
+      description = `${news_title} ${category} Quotes on Cards: Check the ${news_title} ${category} quotes in the form of flashcards at Hitzfeed.`;
+      ogUrl = `${siteUrl}/${url_string}-p${id}/`;
+      keywords = `${title} ${category} quote on card, ${title} ${category} quote card, ${title}, ${category} quote cards, trending quote cards, latest ${category} quote cards, trending ${category} quote cards`;
+      imageUrl = `https://imagesvs.oneindia.com/webp/trends${share_image_link}`;
     }
     if (slug.length === 2 && slug[1].includes('-c')) {
       const categoryName = slug[1].split('-c')[0];
       console.log('executing from inside');
 
-      const response = await feedsServices.getCategorySeo({
+      const data = await feedsServices.getCategorySeo({
         requestBody: {
           lang: 'en',
           type: 'category',
           item: categoryName,
         },
       });
-      const { id, meta_title, meta_description, meta_keywords } = response.data;
+      const { id, meta_title, meta_description, meta_keywords } = data;
       console.log('response', meta_title);
       title = `${meta_title} Category - Hitzfeed`;
       description = meta_description;
@@ -157,7 +157,6 @@ export const generateMetadata = async ({ params }) => {
   }
   // Logic to customize metadata based on the slug
 
-  console.log('title', title, description, imageUrl);
   return {
     title: title,
     description: description,
@@ -207,7 +206,7 @@ export default async function Page({ params }) {
               content={metadata.openGraph.images[0].url}
             />
           </Head>
-          <Feeds lang={undefined} />
+          <Feeds />
         </>
       );
     }
@@ -251,7 +250,7 @@ export default async function Page({ params }) {
               content={metadata.openGraph.images[0].url}
             />
           </Head>
-          <Category params={{ id: categoryId }} />
+          <Category params={{ categoryId: categoryId }} />
         </>
       );
     }
@@ -274,7 +273,7 @@ export default async function Page({ params }) {
               content={metadata.openGraph.images[0].url}
             />
           </Head>
-          <Feeds lang={slug[0]} />
+          <Feeds />
         </>
       );
     }
@@ -295,7 +294,7 @@ export default async function Page({ params }) {
               content={metadata.openGraph.images[0].url}
             />
           </Head>
-          <IndiFeeds params={{ postId }} lang={slug[0]} />
+          <IndiFeeds params={{ postId }} />
         </>
       );
     }
@@ -317,7 +316,7 @@ export default async function Page({ params }) {
               content={metadata.openGraph.images[0].url}
             />
           </Head>
-          <Category params={{ id: categoryId }} lang={slug[0]} />
+          <Category params={{ categoryId: categoryId }} />
         </>
       );
     }
