@@ -52,13 +52,14 @@ async function Trending() {
     });
     return (
       <PostsLayout>
-        <FeedsHeader from={'trending'} />
-
-        <InitialFeeds
-          initialFeedsOnLoad={initialFeedsOnLoad}
-          lang={language}
-          isFromTrending={true}
-        />
+        <div className="flex flex-col gap-[1em]">
+          <FeedsHeader from={'trending'} />
+          <InitialFeeds
+            initialFeedsOnLoad={initialFeedsOnLoad}
+            lang={language}
+            isFromTrending={true}
+          />
+        </div>
       </PostsLayout>
     );
   } catch (err) {

@@ -24,6 +24,8 @@ self.addEventListener('install', (event) => {
         '/others/copyIcon.svg',
         '/others/embedIcon.svg',
         '/others/googleLogo.png',
+        '/others/userFallback.webp',
+        '/others/postFallback.jpg',
       ]);
     })
   );
@@ -120,7 +122,7 @@ self.addEventListener('fetch', (event) => {
     );
   }
 
-  /* if (!url.pathname.startsWith('/api')) {
+  if (!url.pathname.startsWith('/api')) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         // If the request matches a cached response, return it
@@ -134,5 +136,5 @@ self.addEventListener('fetch', (event) => {
         });
       })
     );
-  } */
+  }
 });
