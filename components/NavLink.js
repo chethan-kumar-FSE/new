@@ -5,16 +5,9 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-function NavLink({ href, linkName, keyName }) {
-  const pathname = usePathname(); // Get the current pathname
+function NavLink({ href, linkName, keyName, isActive }) {
   // Check if the current pathname starts with the href
 
-  const regExp = {
-    feeds: /^(\/|\/[a-zA-Z]{2}(\/[a-zA-Z0-9-]+-p\d+)?)$/, // Matches feeds
-    trending: /^\/([a-zA-Z]{2}\/)?trending$/, // Matches trending
-  };
-
-  const isActive = regExp[keyName].test(pathname);
   return (
     <Link
       href={href}

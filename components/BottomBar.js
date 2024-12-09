@@ -1,6 +1,5 @@
 'use client'; // Mark this as a client component
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react'; // Client-side session hook
@@ -18,8 +17,6 @@ export const BottomBar = () => {
     Cookies.get('username') || session?.user?.email.split('@')[0];
   const imageUrl = session?.user?.image;
   const isLoggedIn = session && session?.user;
-
-  console.log('printing', language, username, imageUrl, isLoggedIn);
 
   const navItems = [
     {

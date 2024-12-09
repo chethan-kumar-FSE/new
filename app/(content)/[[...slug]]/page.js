@@ -4,6 +4,7 @@ import Category from '../category/page';
 import { notFound } from 'next/navigation';
 import Head from 'next/head';
 import { feedsServices } from '@/services/feedsService';
+import Trending from '../(subcontent)/trending/page';
 
 // Function to generate metadata based on the slug
 export const generateMetadata = async ({ params }) => {
@@ -73,7 +74,7 @@ export const generateMetadata = async ({ params }) => {
           item: categoryName,
         },
       });
-      const { id, meta_title, meta_description, meta_keywords } = response.data;
+      const { id, meta_title, meta_description, meta_keywords } = response;
       console.log('response', meta_title);
       title = `${meta_title} Category - Hitzfeed`;
       description = meta_description;
@@ -147,6 +148,7 @@ export const generateMetadata = async ({ params }) => {
   }
   // Logic to customize metadata based on the slug
 
+  console.log('profileer', title, description, keywords, imageUrl);
   return {
     title: title,
     description: description,
@@ -230,7 +232,7 @@ export default async function Page({ params }) {
           <Head>
             <title>{metadata.title}</title>
             <meta name="description" content={metadata?.description} />
-            <meta property="og:title" content={metadata?.openGraph.title} />
+            <meta property="og:title" content={metadata?.openGraph?.title} />
             <meta
               property="og:description"
               content={metadata?.openGraph?.description}
@@ -247,13 +249,16 @@ export default async function Page({ params }) {
   }
 
   if (lang) {
+    if (slug[1] === 'trending') {
+      return <Trending />;
+    }
     if (slug.length === 1 || (slug.length === 1 && !slug[0])) {
       return (
         <>
           <Head>
             <title>{metadata?.title}</title>
             <meta name="description" content={metadata?.description} />
-            <meta property="og:title" content={metadata?.openGraph.title} />
+            <meta property="og:title" content={metadata?.openGraph?.title} />
             <meta
               property="og:description"
               content={metadata?.openGraph?.description}
@@ -274,7 +279,7 @@ export default async function Page({ params }) {
           <Head>
             <title>{metadata?.title}</title>
             <meta name="description" content={metadata?.description} />
-            <meta property="og:title" content={metadata?.openGraph.title} />
+            <meta property="og:title" content={metadata?.openGraph?.title} />
             <meta
               property="og:description"
               content={metadata?.openGraph?.description}
@@ -297,7 +302,7 @@ export default async function Page({ params }) {
           <Head>
             <title>{metadata?.title}</title>
             <meta name="description" content={metadata?.description} />
-            <meta property="og:title" content={metadata?.openGraph.title} />
+            <meta property="og:title" content={metadata?.openGraph?.title} />
             <meta
               property="og:description"
               content={metadata?.openGraph?.description}

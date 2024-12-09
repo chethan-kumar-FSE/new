@@ -3,7 +3,7 @@ import NavLink from '@/components/NavLink';
 import { cookies } from 'next/headers';
 import React from 'react';
 
-function FeedsHeader() {
+function FeedsHeader({ from }) {
   const cookieStore = cookies();
   const language = cookieStore.get('language')?.value;
   return (
@@ -15,12 +15,14 @@ function FeedsHeader() {
           href={language === 'en' ? '/' : `/${language}`}
           linkName={'Feeds'}
           keyName={'feeds'}
+          isActive={from === 'feeds'}
           // navLinkPattern={navLinkPattern}
         />
         <NavLink
           href={language === 'en' ? '/trending' : `/${language}/trending`}
           linkName={'Trending'}
           keyName={'trending'}
+          isActive={from === 'trending'}
           // navLinkPattern={navLinkPattern}
         />
       </nav>

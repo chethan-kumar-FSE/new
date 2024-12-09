@@ -49,7 +49,7 @@ export default function Feeds() {
       return (
         <PostsLayout>
           <div className="flex flex-col gap-4">
-            <FeedsHeader />
+            <FeedsHeader from={'feeds'} />
             <Template5 genreList={shuffledGenreList} lang={language} />
 
             <InitialFeeds

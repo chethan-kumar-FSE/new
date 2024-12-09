@@ -120,7 +120,7 @@ self.addEventListener('fetch', (event) => {
     );
   }
 
-  if (!url.pathname.startsWith('/api')) {
+  /* if (!url.pathname.startsWith('/api')) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         // If the request matches a cached response, return it
@@ -134,5 +134,5 @@ self.addEventListener('fetch', (event) => {
         });
       })
     );
-  }
+  } */
 });
