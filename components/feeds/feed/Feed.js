@@ -80,8 +80,8 @@ const Feed = (
 
       {/* Image Display */}
       <div className="relative w-[100%] h-[auto]">
-        <img
-          src={`https://imagesvs.oneindia.com/webp/trends${imageLink}`}
+        <FallbackImage
+          sr={`https://imagesvs.oneindia.com/webp/trends${imageLink}`}
           alt=""
           className={'w-[100%] h-[100%] rounded-[0.5em]'}
           loading={index === 0 ? 'eager' : 'lazy'}
