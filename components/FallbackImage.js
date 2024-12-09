@@ -52,6 +52,7 @@ function FallbackImage({
       height={height}
       className={className}
       loading={loading}
+      onerror="this.src='path/to/fallback-image.jpg';"
     />
   );
 }

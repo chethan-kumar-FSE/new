@@ -66,10 +66,15 @@ function FollowButton({ userFollow, articleId, channelId, newsLanguage }) {
   }
   return (
     <button
-      className={`text-[12px] py-[4px]   px-6 rounded-[0.5em] bg-[#8500ff] text-center cursor-pointer font-semibold focus:outline-none transition-all duration-200 ease-in-out`}
+      className={`text-[12px] py-[4px] px-6 rounded-[0.5em] text-white  text-center cursor-pointer font-semibold focus:outline-none transition-all duration-200 ease-in-out 
+    ${
+      initialUserFollow
+        ? 'border-2 border-[ bg-[#8500ff] border-purple-500 '
+        : 'border-2 border-[#8500ff] bg-[transparent]'
+    }`}
       onClick={handleOnUpdateFollow}
     >
-      {/* based on the userFollow status showing following and unfollowin status */}
+      {/* based on the userFollow status showing following and unfollowing status */}
       {initialUserFollow ? 'Following' : 'Follow'}
     </button>
   );

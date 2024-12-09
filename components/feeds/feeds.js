@@ -38,6 +38,10 @@ export default function InitialFeeds({
     initialFeedsOnLoad[initialFeedsOnLoad?.length - 1]?.timestamp
   );
 
+  const [trackIfRetrievedFromDB, setTrackIfRetrievedFromDB] = useState({
+    commonFeeds: false,
+  });
+
   const [lastId, setLastId] = useState(
     initialFeedsOnLoad[initialFeedsOnLoad?.length - 1]?.last_id
   );
@@ -114,20 +118,23 @@ export default function InitialFeeds({
 
   const handleOnFeedsFromIDB = ({ type, IDBdata }) => {
     const result = IDBdata.filter((idb) => idb.type === type);
+    console.log('currentResuult', result);
     const currentLanguage = Cookies.get('language');
-
+    console.log('alnad0', result[0].records[currentLanguage], currentLanguage);
     return result[0].records[currentLanguage];
   };
 
   const handleOnFeedsError = async ({ errType }) => {
     const IDBdata = await db.responseDataForOfflineAccess.toArray();
+    console.log('EDB', IDBdata, errType);
     if (!IDBdata.length) return;
     switch (errType) {
       case 'commonFeedsError': {
         const feedType = 'commonFeeds';
         if (trackIfRetrievedFromDB[feedType]) return;
-
+        console.log('getting in side');
         const result = handleOnFeedsFromIDB({ type: feedType, IDBdata });
+        console.log('result', result);
         handleOnFeedsUpdate({ result, type: feedType });
         break;
       }
@@ -193,7 +200,7 @@ export default function InitialFeeds({
   useEffect(() => {
     (async () => {
       let isCancelled = false;
-
+      let errType;
       if (inView) {
         let feeds;
 
@@ -231,6 +238,7 @@ export default function InitialFeeds({
               },
             });
           } else {
+            errType = 'commonFeedsError';
             feeds = await feedsServices.getFeeds({
               requestBody: {
                 lang: lang || 'en',
@@ -239,18 +247,16 @@ export default function InitialFeeds({
                 user_id: commonUserId,
               },
             });
-            if (!feeds) {
-              throw new Error('commonFeedsError');
+            if (navigator.onLine) {
+              handleOnIDBCheck({ feedType: 'commonFeeds', feedsToAdd: feeds });
             }
-            handleOnIDBCheck({ feedType: 'commonFeeds', feedsToAdd: feeds });
           }
-          if (!isCancelled) {
-            setFeedsPosts((prevFeeds) => [...prevFeeds, ...feeds]);
-            setLastId(feeds[feeds.length - 1]?.last_id);
-            setNextPage((prevPage) => prevPage + 1);
-          }
+          setFeedsPosts((prevFeeds) => [...prevFeeds, ...feeds]);
+          setLastId(feeds[feeds.length - 1]?.last_id);
+          setNextPage((prevPage) => prevPage + 1);
         } catch (err) {
-          handleOnFeedsError({ errType: err.message });
+          console.log('error', errType);
+          handleOnFeedsError({ errType: errType });
         }
       }
       return () => {
@@ -363,7 +369,7 @@ export default function InitialFeeds({
         )}
         <div
           ref={ref}
-          className="h-[100px] w-[50px] bg-transparent absolute bottom-[30%]"
+          className="h-[100px] w-[50px] z-20 bg-transparent absolute bottom-[30%]"
         ></div>
       </div>
       <BackdropDynamicImport>
