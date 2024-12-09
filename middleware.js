@@ -28,7 +28,7 @@ export function middleware(request) {
     !isTokenPresent &&
     (pathName.startsWith('/setting') ||
       pathName.startsWith('/comment') ||
-      pathName.startsWith('/profile/edit'))
+      pathName.startsWith('/profile'))
   ) {
     return NextResponse.redirect(new URL('/login', url));
   }

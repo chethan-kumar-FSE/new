@@ -1,5 +1,5 @@
 console.log('Service Worker script loaded');
-const CACHED_VERSION = 1;
+const CACHED_VERSION = 2;
 // Define cache names
 const CACHE_LIST = [
   `PRE_CACHING_ASSETS_V${CACHED_VERSION}`,
@@ -17,6 +17,15 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_LIST[0]).then((cache) => {
       return cache.addAll([
         '/',
+        /* '/ta',
+        '/te',
+        '/or',
+        '/bn',
+        '/gu',
+        '/mr',
+        '/ml',
+        '/kn',
+        '/hi', */
         '/offline.html',
         './../app/global.css',
         '/others/loader.gif',

@@ -8,10 +8,13 @@ import { LiaHomeSolid } from 'react-icons/lia';
 import { RiAccountCircleLine } from 'react-icons/ri';
 import { BsNewspaper } from 'react-icons/bs';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
+import { notify } from '@/utils/Toast';
 
 export const BottomBar = () => {
   const { data: session } = useSession(); // Get session data client-side
 
+  const router = useRouter();
   const language = Cookies.get('language');
   const username =
     Cookies.get('username') || session?.user?.email.split('@')[0];
@@ -21,29 +24,48 @@ export const BottomBar = () => {
   const navItems = [
     {
       icon: <LiaHomeSolid size={30} />,
-      navigateTo: language === 'en' ? '/' : `/${language}`,
+      navigateTo: () => {
+        router.push(language === 'en' ? '/' : `/${language}`);
+      },
     },
 
     {
       icon: <BsNewspaper size={26} />,
-      navigateTo: `${NEWS_LINKS[language]?.link}`,
+      navigateTo: () => {
+        if (!navigator.onLine) {
+          notify({ message: 'Please check your connection', isError: true });
+          return;
+        }
+        window.open(`${NEWS_LINKS[language]?.link}`, '_blank');
+      },
       newTab: true,
     },
     {
       icon: <RiAccountCircleLine size={30} />,
-      navigateTo: isLoggedIn ? `/profile/${username}` : '/login',
+      navigateTo: () => {
+        if (!navigator.onLine) {
+          // Handle the case when the user is offline
+          notify({ message: 'Please check your connection', isError: true });
+          return;
+        } else {
+          if (isLoggedIn) {
+            router.push(`/profile/${username}`);
+          } else {
+            router.push('/login');
+          }
+        }
+      },
     },
   ];
 
   return (
-    <nav className="w-[100%] fixed bottom-0 flex px-[4em] py-[1em] bg-black justify-between">
+    <div className="w-[100%] fixed bottom-0 flex px-[4em] py-[1em] bg-black justify-between">
       {navItems.map(({ navigateTo, newTab, icon }, index, items) => {
         return (
-          <Link
-            href={navigateTo}
+          <div
             key={index}
             className="text-center flex cursor-pointer"
-            target={newTab && '_blank'}
+            onClick={() => navigateTo()}
           >
             {index === items.length - 1 && isLoggedIn && imageUrl ? (
               <Image
@@ -57,9 +79,9 @@ export const BottomBar = () => {
             ) : (
               <span className="text-[#fff]">{icon}</span>
             )}
-          </Link>
+          </div>
         );
       })}
-    </nav>
+    </div>
   );
 };
