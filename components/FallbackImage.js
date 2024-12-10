@@ -26,7 +26,7 @@ function FallbackImage({
         }
 
         // Check if the image URL is reachable
-        const res = await fetch(sr, { method: 'HEAD' });
+        const res = await fetch(sr);
         if (isMounted) {
           if (!res.ok) {
             setImgSrc(condImg);
@@ -52,7 +52,7 @@ function FallbackImage({
       height={height}
       className={className}
       loading={loading}
-      onerror="this.src='path/to/fallback-image.jpg';"
+      onerror="this.src='/others/postFallback.jpg';"
     />
   );
 }

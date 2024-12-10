@@ -6,7 +6,6 @@ import { userService } from '@/services/userService';
 import { notify } from '@/utils/Toast';
 import Cookies from 'js-cookie';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -115,12 +114,12 @@ export default function Login() {
 
       <div className="flex flex-col gap-8">
         <SigninButton />
-        <div className="flex items-center gap-2">
+        {/*  <div className="flex items-center gap-2">
           <input type="checkbox" className="accent-[#8500ff]" />
           <span className="text-xs text-[#bdc1c6]">
             Remember me on this device
           </span>
-        </div>
+        </div> */}
       </div>
 
       <div className="text-xs text-[#bdc1c6] italic text-center">
