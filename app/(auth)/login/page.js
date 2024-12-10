@@ -1,4 +1,5 @@
 'use client';
+import InstallButton from '@/components/InstallButton';
 import Loader from '@/components/Loader';
 import SigninButton from '@/components/SigninButton';
 import useResource from '@/hooks/useResource';
@@ -114,6 +115,7 @@ export default function Login() {
 
       <div className="flex flex-col gap-8">
         <SigninButton />
+        <InstallButton />
         {/*  <div className="flex items-center gap-2">
           <input type="checkbox" className="accent-[#8500ff]" />
           <span className="text-xs text-[#bdc1c6]">
