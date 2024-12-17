@@ -9,8 +9,9 @@ function useSessionAndConnectivity() {
   const checkSessionAndConnectivity = useCallback(() => {
     if (session?.user) return true;
     if (!checkConnectionAndNotify(notify)) return;
-
-    router.push('/login');
+const pathname = window.location.pathname;
+    router.push(`/login?callbackurl=${pathname}`); 
+    //router.push('/login');
     return false;
   }, [session, router]);
 
