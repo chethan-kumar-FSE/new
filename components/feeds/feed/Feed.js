@@ -68,6 +68,8 @@ const Feed = (
           newsLanguage={newsLanguage}
           articleId={id}
           channelId={channelId}
+          updateFollowStatusOnProfileFollow={updateFollowStatusOnProfileFollow}
+          channelName={channelName}
         />
 
         {/* Line */}
