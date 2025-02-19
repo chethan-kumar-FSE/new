@@ -282,6 +282,21 @@ export default function InitialFeeds({
     []
   );
 
+  function updateFollowStatusOnProfileFollow({ username, currentFollow }) {
+    const feedsClone = JSON.parse(JSON.stringify(feedsPosts));
+    const updatedFeedsPosts = feedsClone.map((feed) => {
+      if (feed.channel_name !== username) return feed;
+      return {
+        ...feed,
+        user: {
+          userfollow: currentFollow,
+        },
+      };
+    });
+    setFeedsPosts(updatedFeedsPosts);
+  }
+
+
   return (
     <>
       <div className="flex flex-col items-center w-[100%]  gap-[1em] relative">
@@ -304,6 +319,7 @@ export default function InitialFeeds({
               download_count,
               save_count,
               news_language,
+              channel_name,
               user: { userlike, usershare, usersave, userfollow },
             },
             index
@@ -335,6 +351,10 @@ export default function InitialFeeds({
                 userSave={usersave}
                 userFollow={userfollow}
                 channelId={channel_id}
+                  channelName={channel_name}
+                updateFollowStatusOnProfileFollow={
+                  updateFollowStatusOnProfileFollow
+                }
               />
             );
             if (isFromUserProf || isFromSaved) {
