@@ -34,6 +34,8 @@ const Feed = (
     index,
     userFollow,
     channelId,
+    updateFollowStatusOnProfileFollow,
+    channelName,
   },
   ref
 ) => {
