@@ -15,15 +15,14 @@ class ApiClient {
     //some request send request body as an inidvidual formdata
     //directformdata is the key passed to check if should send with data key or as an individual fromdata key value pairs
 
-    if (requestBody && directFormData) {
+   if (requestBody && directFormData) {
       for (let key in requestBody) {
         formData.append(key, requestBody[key]);
       }
-    }
-
-    if (requestBody) {
+    } else {
       formData.append('data', JSON.stringify(requestBody));
     }
+
     //if directformData is not present send with 'data' key
 
     //request object to be used with fetch
